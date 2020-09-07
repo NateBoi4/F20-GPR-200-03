@@ -50,12 +50,43 @@ void testVector()
 	d = b + b;										// sum, init, assign			-> d = (2, 4, 6)
 	d = c + b + a;									// sum, init, sum, init, assign	-> d = (9, 12, 15)
 #endif	// __cplusplus
+
+	vec3 test;
+	vec3init(test.v, 1.0f, 2.0f, 3.0f);
+	printf("%f %f %f\n", test.v[0], test.v[1], test.v[2]);
+	printf("%f %f %f\n", test.x, test.y, test.z);
 }
 
+
+#ifdef __cplusplus
+//C++ files to include
+#include <fstream>
+#include <string>
+#else // !__clplusplus
+//C files to include
+#include <stdio.h>
+#endif // __cplusplus
 
 int main(int const argc, char const* const argv[])
 {
 	testVector();
+
+#ifdef __cplusplus
+	//opening and writing to a file in C++ 
+	std::ofstream file("openpls.txt"); //open file for writing
+	std::string test = "hello"; //create string
+	file << test << std::endl; //output string and newline to file
+	file.close(); //Close file
+#else // !__clplusplus
+	//Open and writing to a file in C
+	FILE* fp = fopen("openpls.txt", "w"); //open file for writing
+	if (fp) 
+	{
+		char* test = "hello world"; //create string
+		fprintf(fp, "%s\n", test); //output string and newline to file
+		fclose(fp); //done, close file
+	}
+#endif // __cplusplus
 
 	printf("\n\n");
 	system("pause");
