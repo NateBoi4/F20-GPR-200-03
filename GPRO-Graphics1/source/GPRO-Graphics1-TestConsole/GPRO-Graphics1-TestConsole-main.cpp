@@ -28,6 +28,7 @@
 
 
 #include "gpro/gpro-math/gproVector.h"
+#include "gpro/image.h"
 
 
 void testVector()
@@ -56,6 +57,7 @@ void testVector()
 int main(int const argc, char const* const argv[])
 {
 	testVector();
+	image();
 
 	printf("\n\n");
 	system("pause");

@@ -164,6 +164,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\GPRO-Graphics1-TestConsole\GPRO-Graphics1-TestConsole-main.cpp" />
+    <ClCompile Include="..\..\..\source\image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\include\gpro\image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

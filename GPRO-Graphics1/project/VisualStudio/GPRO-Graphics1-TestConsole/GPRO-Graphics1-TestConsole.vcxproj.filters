@@ -18,5 +18,13 @@
     <ClCompile Include="..\..\..\source\GPRO-Graphics1-TestConsole\GPRO-Graphics1-TestConsole-main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\include\gpro\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
