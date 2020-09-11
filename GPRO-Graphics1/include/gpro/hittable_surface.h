@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Defines what is and is not a hittable surface for a ray
 */
 #ifndef HITTABLE_SURFACE_H
 #define HITTABLE_SURFACE_H

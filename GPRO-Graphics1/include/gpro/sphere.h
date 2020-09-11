@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Creates a sphere with surfaces to be hit by the ray and outputed to the console
 */
 #ifndef SPHERE_H
 #define SPHERE_H

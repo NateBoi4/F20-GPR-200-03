@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Defines what a ray is and generates the formula for creating a ray
 */
 #ifndef RAY_TRACING_H
 #define RAY_TRACING_H

@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Generates a list of hittable objects as defined by hittable surfaces
 */
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H

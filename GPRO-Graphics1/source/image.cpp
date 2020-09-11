@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Generates an image, and a camera that uses rays to trace the image, and renders image to be outputed
 */
 #include "gpro/define_inf.h"
 
@@ -35,7 +36,7 @@ Uses a lerp to blend the colors
 color ray_color(const ray& r, const hittable& world) {
     hit_record rec;
     if (world.hit(r, 0, infinity, rec)) {
-        return 0.5 * (rec.normal + color(2.0, 2.0, 2.0));
+        return 0.5 * (rec.normal + color(1.0, 0.8, 0.5));
     }
     vect3 unit_direction = unit_vector(r.direction());
     double t = 0.5 * (unit_direction.y() + 1.0);
@@ -53,9 +54,9 @@ void image() {
     // Adds objects to the world to be tested as hittable surfaces
 
     hittable_list world;
-    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
-    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100));
-    world.add(make_shared<sphere>(point3(0, 0, -1), 0.2));
+    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5)); //Center Sphere
+    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100)); //Ground Sphere
+    world.add(make_shared<sphere>(point3(0, 25.5, -1), 100)); //Sky Sphere
 
     // Camera from which rays will originate
 

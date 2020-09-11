@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Small function to simplify writing to each pixel on a screen and coloring it.
 */
 #ifndef PIXEL_COLOR_H
 #define PIXEL_COLOR_H

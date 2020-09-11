@@ -23,6 +23,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Gives definition to missing math constants and adds math utility functions
 */
 #include <memory>
 

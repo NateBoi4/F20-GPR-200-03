@@ -17,6 +17,7 @@ Work references Chapter 1: Overview
                 Chapter 6: Surface Normals and Multiple Objects
 
 Code has been edited by Nathan Boisvert 2020
+Definition of several vector functions to be used to help create the image and the rays
 */
 #ifndef VECTOR_THREE_H
 #define VECTOR_THREE_H
