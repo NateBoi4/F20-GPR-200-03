@@ -57,6 +57,8 @@ void image() {
     world.add(make_shared<sphere>(point3(0, 0, -1), 0.5)); //Center Sphere
     world.add(make_shared<sphere>(point3(0, -100.5, -1), 100)); //Ground Sphere
     world.add(make_shared<sphere>(point3(0, 25.5, -1), 100)); //Sky Sphere
+    world.add(make_shared<sphere>(point3(0.5, 0.5, -1.0), 0.2)); //Right Sphere
+    world.add(make_shared<sphere>(point3(-0.5, 0.5, -1.0), 0.2)); //Left Sphere
 
     // Camera from which rays will originate
 
@@ -89,6 +91,5 @@ void image() {
             write_color(std::cout, pixel_color);
         }
     }
-
     std::cerr << "\nDone.\n";
 }
