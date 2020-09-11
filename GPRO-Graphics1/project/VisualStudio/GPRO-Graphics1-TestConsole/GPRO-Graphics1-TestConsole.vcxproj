@@ -167,8 +167,14 @@
     <ClCompile Include="..\..\..\source\image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\include\gpro\define_inf.h" />
+    <ClInclude Include="..\..\..\include\gpro\hittable_list.h" />
+    <ClInclude Include="..\..\..\include\gpro\hittable_surface.h" />
     <ClInclude Include="..\..\..\include\gpro\image.h" />
+    <ClInclude Include="..\..\..\include\gpro\pixel_color.h" />
     <ClInclude Include="..\..\..\include\gpro\ray_tracing.h" />
+    <ClInclude Include="..\..\..\include\gpro\sphere.h" />
+    <ClInclude Include="..\..\..\include\gpro\vector_three.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
