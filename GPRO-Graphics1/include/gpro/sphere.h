@@ -44,6 +44,7 @@ public:
 Gets surface normal to allow for shading
 This happens by setting components to an interval from 0 to 1
 And setting the x/y/z coordinates to r/g/b values
+Surface is made to be front facing, or toward the viewer
 */
 bool sphere::hit(const ray& r, double t_min, double t_max, hit_record& rec) const {
     vect3 oc = r.origin() - center;

@@ -29,6 +29,15 @@ Code has been edited by Nathan Boisvert 2020
 using std::shared_ptr;
 using std::make_shared;
 
+
+/*
+Class that stores a list of hittables
+Uses hittable to determine what is and isn't a hittable surface
+Takes in an object and compares its surface to what should and should not be hittable
+Makes use of shared pointers for better memory management and to allow multiple objects 
+to have common instances that can be compared and contrasted. Is essentially a collection of pointers
+Vector is used to create an array to hold the collection of pointers
+*/
 class hittable_list : public hittable {
 public:
     hittable_list() {}

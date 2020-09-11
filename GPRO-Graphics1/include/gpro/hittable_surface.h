@@ -26,6 +26,7 @@ Code has been edited by Nathan Boisvert 2020
 /*
 Hit function takes in a ray to determine whether something is "hittable" or not by the ray
 Also determines which side the ray is on when coloring
+Normal is set to always face the front, or "outward"
 */
 struct hit_record {
     point3 p;

@@ -35,6 +35,12 @@ using std::sqrt;
 
 // Constants
 
+/*
+Adds a definition for infinity
+Infinity is used for detecting hits
+Adds a definition for pi
+Allows for conversion from degrees to radians, which is useful when wokring with spheres
+*/
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
 
