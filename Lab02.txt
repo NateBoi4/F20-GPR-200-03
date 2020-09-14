@@ -1,4 +1,4 @@
-//Output the screen-space or UV coordinate as a static gradient.
+//Output the screen-space or UV coordinate as a static gradient. Done in class.
 vec4 myEffect0 (in vec2 fragCoord, in vec2 resolution)
 {
     //return vec4(1.0, 0.0, 0.0, 1.0);
