@@ -1,4 +1,6 @@
-//Output the screen-space or UV coordinate as a static gradient. Done in class.
+#define colorRGB	vec3
+
+//Output the screen-space or UV coordinate as a static gradient. Done in Class
 vec4 myEffect0 (in vec2 fragCoord, in vec2 resolution)
 {
     //return vec4(1.0, 0.0, 0.0, 1.0);
@@ -21,9 +23,16 @@ vec4 myEffect0 (in vec2 fragCoord, in vec2 resolution)
 }
 
 //Implement a static checkerboard pattern with perfectly square checkers
-vec4 myEffect1 (in vec2 fragCoord)
+vec4 myEffect1 (in vec2 fragCoord, in vec2 resolution)
 {
-    return vec4(1.0, 0.5, 0.7, 1.0);
+    float scale = 9.0; //Scales size of board
+    float alpha = 1.0; //Alpha of image
+    float evens = 2.0; //Sets mod result to 1.0 or 0.0 for black or white color
+    vec2 tile_size = vec2(resolution.x / resolution.y, 1.0); //Determines size of tile, based on coordinate space
+    vec2 grid = ceil(scale * fragCoord * tile_size / resolution); //Forms Grid for checkerboard
+    //Grid is made according to scaling, coordinate space vs. resolution, and tile size.
+    vec3 tile = colorRGB(mod(grid.x + grid.y, evens)); //Determines tile color based on coordinate space
+    return vec4(tile, alpha); //Returns checkerboard image
 }
 
 //Implement a circle whose color and size change over time.
@@ -46,8 +55,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     //R, G ,B, A  => [0, 1]
     //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
     
-    fragColor = myEffect0(fragCoord, iResolution.xy);
-    //fragColor = myEffect1(fragCoord);
+    //fragColor = myEffect0(fragCoord, iResolution.xy);
+    fragColor = myEffect1(fragCoord, iResolution.xy);
     //fragColor = myEffect2(fragCoord);
     //fragColor = myEffect3(fragCoord);
     
