@@ -36,9 +36,20 @@ vec4 myEffect1 (in vec2 fragCoord, in vec2 resolution)
 }
 
 //Implement a circle whose color and size change over time.
-vec4 myEffect2 (in vec2 fragCoord)
+vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution)
 {
-    return vec4(0.2, 0.4, 0.6, 1.0);
+    float ti = clamp(fract(iTime), 0.0, 1.0); //Changes over time
+    float alpha = 1.0; //Alpha of image
+    float radius = 100.0; // Circle radius
+    vec2 circle_center = resolution * 0.5; //Center point of circle is center of screen
+    vec3 color = colorRGB(0.2, 0.5, 0.7*ti); //Circle color that changes with time
+    float y = length(circle_center - fragCoord) - (radius * ti); 
+    //Radius is altered to be affected with changes in time
+	float t = clamp(y, 0.0, 1.0); //Limits circle to specified space on screen
+    vec4 background = vec4(0.0, 0.0, 0.0, alpha); //Background Color
+    vec4 circle = vec4(color, alpha - t); //Circle implementation
+    vec4 full_circle_image = mix(background, circle, circle.a); //Combine background and circle with linear blend
+    return full_circle_image;
 }
 
 //Implement a unique, full-screen psychedelic effect to morph colors and patterns all across the screen.  
@@ -56,8 +67,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
     
     //fragColor = myEffect0(fragCoord, iResolution.xy);
-    fragColor = myEffect1(fragCoord, iResolution.xy);
-    //fragColor = myEffect2(fragCoord);
+    //fragColor = myEffect1(fragCoord, iResolution.xy);
+    
+    fragColor = myEffect2(fragCoord, iResolution.xy);
     //fragColor = myEffect3(fragCoord);
     
     // Normalized pixel coordinates (from 0 to 1)
