@@ -1,6 +1,7 @@
 #define colorRGB	vec3
 
-//Output the screen-space or UV coordinate as a static gradient. Done in Class
+//Output the screen-space or UV coordinate as a static gradient. Done in Class\
+//Shown by Daniel Bucksteind 2020, copied and slightly modified by Nathan Boisvert 2020
 vec4 myEffect0 (in vec2 fragCoord, in vec2 resolution)
 {
     //return vec4(1.0, 0.0, 0.0, 1.0);
@@ -14,15 +15,29 @@ vec4 myEffect0 (in vec2 fragCoord, in vec2 resolution)
     //final: red-green gradient
     
     vec2 uv = fragCoord/resolution;
-    return vec4(uv, 0.25, 1.0);
+    return vec4(uv, 0.5, 1.0);
     
     //return vec4(0.25, uv, 1.0);
     
     //return vec4(uv.x, 0.25, uv.y, 1.0);
     
 }
+/*
+Implement a static checkerboard pattern with perfectly square checkers
+The code in this effect was given inspiration from: https://www.geeks3d.com/hacklab/20190225/demo-checkerboard-in-glsl/
+Which was also adapted from: https://github.com/mattdesl/glsl-checker
+Specifically, the implementation of mod to color the grid, and floor to create the grid
+Floor was replaced by ceil for testing purposes and the output was the same so I kept it ceil
+Code modified by Nathan Boisvert 2020
 
-//Implement a static checkerboard pattern with perfectly square checkers
+In this effect, a grid is created by using setting a size for each tile that will appear,
+scaling this tile to fit the screen resolution, then using this scale and set size along with the
+pixel coordinates and screen resolution a grid is made with each square space determined by position on
+the screen. Ceil or floor, must be used to ensure the grid is along the xy axis and not a diagonal space,
+effectively spreading out the squares to match the screen space, as determined by the resolution.
+The color of each square space is determined by position in the grid, using a modulus of 2.0 that
+will either return 0.0 for black or 1.0 for white.
+*/
 vec4 myEffect1 (in vec2 fragCoord, in vec2 resolution)
 {
     float scale = 9.0; //Scales size of board
@@ -30,15 +45,39 @@ vec4 myEffect1 (in vec2 fragCoord, in vec2 resolution)
     float evens = 2.0; //Sets mod result to 1.0 or 0.0 for black or white color
     vec2 tile_size = vec2(resolution.x / resolution.y, 1.0); //Determines size of tile, based on coordinate space
     vec2 grid = ceil(scale * fragCoord * tile_size / resolution); //Forms Grid for checkerboard
+    //vec2 grid = floor(scale * fragCoord * tile_size / resolution); //Alternate gird. Works
+    //vec2 grid = fract(scale * fragCoord * tile_size / resolution); //Alternate grid. Color blend
+    //vec2 grid = scale * fragCoord * tile_size / resolution; //Alternate grid. Diagonal grid
+    //vec2 grid = trunc(scale * fragCoord * tile_size / resolution); //Alternate grid. Works
+    //vec2 grid = round(scale * fragCoord * tile_size / resolution); //Alternate grid. Tile offset
     //Grid is made according to scaling, coordinate space vs. resolution, and tile size.
-    vec3 tile = colorRGB(mod(grid.x + grid.y, evens)); //Determines tile color based on coordinate space
+    vec3 tile = colorRGB(mod(grid.x + grid.y, evens)); //Determines tile color based on coordinate space in grid
     return vec4(tile, alpha); //Returns checkerboard image
 }
 
-//Implement a circle whose color and size change over time.
+/*
+Implement a circle whose color and size change over time.
+The code is this effect was created originally by user jonobr1 on Shadertoy
+The code from said user can be found here: https://www.shadertoy.com/view/XsjGDt
+I have a really hard time understanding how images are made from vectors so I needed to use
+someone elses to create my circle. I made sure that I look closely at what was going on in the code
+so that I wasn't just using it without learning anything.
+Code modified by Nathan Boisvert 2020
+
+In this effect, through a combination of time, floats, and vectors, an animated and color-changing circle
+has been created. The radius of the circle is a set size. The center point of the circle is found by taking
+half of the screen resolution. The area where the circle can exist is set by taking the length of the circle-
+center and subtracing the pixel coordinates. Then, the radius of the circle is subtracted from this length,
+effectively stating which pixels are within the radius bounds on the screen. The radius is set to alter with time
+to create a circle with a size change. The color of the circle is set rgb values, with the b value being made
+to change with time. The circle edge is only colored with the set color, essentially a ring with a hole, so to fill
+the circle, a clamp is used to fill the entire area where the circle exists, listed by the min-max bounds, with
+the circle's color. Finally, a mix is used to combine a static background color with the circle to allow the
+circle to properally appear on the screen.
+*/
 vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution, in float t)
 {
-    float ti = fract(t); //Changes over time
+    float ti = sin(t) * 1.5; //Changes over time
     float alpha = 1.0; //Alpha of image
     float radius = 100.0; // Circle radius
     vec2 circle_center = resolution * 0.5; //Center point of circle is center of screen
@@ -48,47 +87,45 @@ vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution, in float t)
     //Radius is altered to be affected with changes in time
 	float fill_circle = clamp(circle_bounds, 0.0, 1.0); //Tells pixels inside circle to match circle color.
     //Without this, only circle edge is specified color.
-    vec4 background = vec4(0.0, 0.0, 0.0, alpha); //Background Color
+    vec4 background = vec4(0.9, 0.5, 0.2, alpha); //Background Color that complements circle
     vec4 circle = vec4(color, alpha - fill_circle); //Circle implementation
     vec4 full_circle_image = mix(background, circle, circle.a); //Combine background and circle with linear blend
     return full_circle_image;
 }
 
-//Implement a unique, full-screen psychedelic effect to morph colors and patterns all across the screen.  
-//Use time and other uniforms to animate it.
+/*
+Implement a unique, full-screen psychedelic effect to morph colors and patterns all across the screen.  
+Use time and other uniforms to animate it.
+Code modified by Nathan Boisvert 2020
+
+In this effect, time is altered and controled through a set speed constant and different trig functions.
+Time is then used with coordinate space to create altering and changing color effects across the screen.
+Time is used with position to give the illusion of movement for the colors appearing.
+Makes use of trig functions to add a wave effect with the colors.
+Makes use of mix function to blend multiple wave effects and color changes to make more psychedelic
+*/
 vec4 myEffect3 (in vec2 fragCoord, in vec2 resolution, in float t)
 {
     vec2 uv = fragCoord / resolution; //Screen pixel coordinates
     float alpha = 1.0; //Alpha of image
     float speed = 2.0; //Speed of time changes
+    float alter_dir = 0.15; //Alters direction of wave effect
     float st = sin(t) * speed; //Sine of changes in time adjusted by set speed
     float ct = cos(t) * speed; //Cosine of changes in time adjusted by set speed
     float tt = tan(t) * speed; //Tangent of changes in time adjusted by set speed
-    vec3 wave = colorRGB((uv.x * cos(uv.x))*st, (uv.y * sin(uv.y))*ct, 0.25*tt); //Applied use of time and position to warp coordinate color
-    vec3 color = colorRGB((1.0 - ct * cos(uv.x)), (0.5 - st * sin(uv.y)), tt); //Applied uses of time to change image color
-    vec3 mixer = colorRGB((uv.x * sin(uv.x))*st, (uv.y * cos(uv.y))*ct, 0.75*tt); //Applied use of time and position to warp coordinate color
-    vec3 psych = mix(color, wave, mixer); //Blend together warping colors to create psychedlic effect
+    vec3 alt = colorRGB((uv.x * cos(uv.x*st - alter_dir)), (uv.y * sin(uv.y*ct + alter_dir)), 1.0 - (0.25*tt)); //Applied use of time and position to warp coordinate color
+    vec3 color = colorRGB((1.0 - ct * cos(uv.x)), (1.0 - st * sin(uv.y)), 1.0 - tt); //Applied uses of time to change image color
+    vec3 mixer = colorRGB((uv.x * sin(uv.x*st + alter_dir)), (uv.y * cos(uv.y*ct - alter_dir)), 1.0 - (0.75*tt)); //Applied use of time and position to warp coordinate color
+    vec3 psych = mix(color, alt, mixer); //Uses mix to blend different color changes and wave implementations
     return vec4(psych, alpha);
 }
 
 
-
+//Makes calls to all effects
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    //R, G ,B, A  => [0, 1]
-    //fragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    
-    //fragColor = myEffect0(fragCoord, iResolution.xy);
+    fragColor = myEffect0(fragCoord, iResolution.xy);
     //fragColor = myEffect1(fragCoord, iResolution.xy);
     //fragColor = myEffect2(fragCoord, iResolution.xy, iTime);
-    fragColor = myEffect3(fragCoord, iResolution.xy, iTime);
-    
-    // Normalized pixel coordinates (from 0 to 1)
-    //vec2 uv = fragCoord/iResolution.xy;
-
-    // Time varying pixel color
-    //vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
-
-    // Output to screen
-    //fragColor = vec4(col,1.0);
+    //fragColor = myEffect3(fragCoord, iResolution.xy, iTime);
 }
