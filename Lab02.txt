@@ -36,9 +36,9 @@ vec4 myEffect1 (in vec2 fragCoord, in vec2 resolution)
 }
 
 //Implement a circle whose color and size change over time.
-vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution)
+vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution, in float t)
 {
-    float ti = fract(iTime); //Changes over time
+    float ti = fract(t); //Changes over time
     float alpha = 1.0; //Alpha of image
     float radius = 100.0; // Circle radius
     vec2 circle_center = resolution * 0.5; //Center point of circle is center of screen
@@ -56,14 +56,19 @@ vec4 myEffect2 (in vec2 fragCoord, in vec2 resolution)
 
 //Implement a unique, full-screen psychedelic effect to morph colors and patterns all across the screen.  
 //Use time and other uniforms to animate it.
-vec4 myEffect3 (in vec2 fragCoord, in vec2 resolution)
+vec4 myEffect3 (in vec2 fragCoord, in vec2 resolution, in float t)
 {
-    vec2 uv = fragCoord / resolution;
-    float st = sin(iTime) * 2.0;
-    float ct = cos(iTime) * 2.0;
-    float tt = tan(iTime) * 2.0;
-    vec3 wave = vec3((1.0 - ct * cos(uv.x)), (0.5 - st * sin(uv.y)), tt);
-    return vec4(wave, 1.0);
+    vec2 uv = fragCoord / resolution; //Screen pixel coordinates
+    float alpha = 1.0; //Alpha of image
+    float speed = 2.0; //Speed of time changes
+    float st = sin(t) * speed; //Sine of changes in time adjusted by set speed
+    float ct = cos(t) * speed; //Cosine of changes in time adjusted by set speed
+    float tt = tan(t) * speed; //Tangent of changes in time adjusted by set speed
+    vec3 wave = colorRGB((uv.x * cos(uv.x))*st, (uv.y * sin(uv.y))*ct, 0.25*tt); //Applied use of time and position to warp coordinate color
+    vec3 color = colorRGB((1.0 - ct * cos(uv.x)), (0.5 - st * sin(uv.y)), tt); //Applied uses of time to change image color
+    vec3 mixer = colorRGB((uv.x * sin(uv.x))*st, (uv.y * cos(uv.y))*ct, 0.75*tt); //Applied use of time and position to warp coordinate color
+    vec3 psych = mix(color, wave, mixer); //Blend together warping colors to create psychedlic effect
+    return vec4(psych, alpha);
 }
 
 
@@ -75,8 +80,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     
     //fragColor = myEffect0(fragCoord, iResolution.xy);
     //fragColor = myEffect1(fragCoord, iResolution.xy);
-    //fragColor = myEffect2(fragCoord, iResolution.xy);
-    fragColor = myEffect3(fragCoord, iResolution.xy);
+    //fragColor = myEffect2(fragCoord, iResolution.xy, iTime);
+    fragColor = myEffect3(fragCoord, iResolution.xy, iTime);
     
     // Normalized pixel coordinates (from 0 to 1)
     //vec2 uv = fragCoord/iResolution.xy;
