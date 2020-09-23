@@ -2,7 +2,29 @@ struct hitRecord {
     vec3 p;
     vec3 normal;
     float t;
+    bool front_face;
 };
+    
+void setFaceNormal(in vec4 rayOrigin, in vec4 rayDirection, in vec3 outward_normal, in hitRecord rec) {
+    rec.front_face = dot(vec3(rayDirection), outward_normal) < 0.0;
+    rec.normal = rec.front_face ? outward_normal :-outward_normal;
+}
+    
+    
+float lenSq(in vec3 inputVec)
+{
+    return inputVec.x * inputVec.x +
+        inputVec.y * inputVec.y +
+        inputVec.z * inputVec.z;
+}
+
+float lenSq(in vec4 inputVec)
+{
+    return inputVec.x * inputVec.x +
+        inputVec.y * inputVec.y +
+        inputVec.z * inputVec.z +
+        inputVec.w * inputVec.w;
+}
 
 bool hit(in vec4 rayOrigin, in vec4 rayDirection, in float t_min, in float t_max,
          in vec3 sphereCenter, in float sphereRadius, in hitRecord rec)
@@ -20,9 +42,10 @@ bool hit(in vec4 rayOrigin, in vec4 rayDirection, in float t_min, in float t_max
         if (temp < t_max && temp > t_min) 
         {
             rec.t = temp;
-            //vec4 at = rayOrigin + t*rayDirection;
-            //rec.p = r.at(rec.t);
-            rec.normal = (rec.p - sphereCenter) / sphereRadius;
+            vec4 at = rayOrigin + rec.t*rayDirection;
+            rec.p = vec3(at);
+            vec3 outward_normal = (rec.p - sphereCenter) / sphereRadius;
+            setFaceNormal(rayOrigin, rayDirection, outward_normal, rec);
             return true;
         }
 
@@ -30,9 +53,10 @@ bool hit(in vec4 rayOrigin, in vec4 rayDirection, in float t_min, in float t_max
         if (temp < t_max && temp > t_min) 
         {
             rec.t = temp;
-            //vec4 at = rayOrigin + t*rayDirection;
-            //rec.p = r.at(rec.t);
-            rec.normal = (rec.p - sphereCenter) / sphereRadius;
+            vec4 at = rayOrigin + rec.t*rayDirection;
+            rec.p = vec3(at);
+            vec3 outward_normal = (rec.p - sphereCenter) / sphereRadius;
+            setFaceNormal(rayOrigin, rayDirection, outward_normal, rec);
             return true;
         }
     }
@@ -84,21 +108,6 @@ void calcRay(out vec4 rayDirection, out vec4 rayOrigin,
     // ray direction relative to origin is based on viewing plane coordinate
     // w = 0 because it represents a direction; can ignore when using
     rayDirection = vec4(viewport.x, viewport.y, -focalLength, 0.0);
-}
-
-float lenSq(in vec3 inputVec)
-{
-    return inputVec.x * inputVec.x +
-        inputVec.y * inputVec.y +
-        inputVec.z * inputVec.z;
-}
-
-float lenSq(in vec4 inputVec)
-{
-    return inputVec.x * inputVec.x +
-        inputVec.y * inputVec.y +
-        inputVec.z * inputVec.z +
-        inputVec.w * inputVec.w;
 }
 
 //hitSphere: Calculate if ray hits a sphere
