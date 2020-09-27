@@ -90,6 +90,92 @@ float lenSq(vec2 x)
     return dot(x, x);
 }
 
+struct sPointLight
+{
+    vec4 center;
+    vec3 color;
+    float intensity;
+};
+    
+void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in float intensity)
+{
+    light.center = asPoint(center);
+    light.color = color;
+    light.intensity = intensity;
+}
+
+//Diffuse Intensity
+// ID = K * IL
+// ID is the diffuse Intensity
+// K is the diffuse coefficient
+// IL is the attenuated light intensity
+
+//Diffuse Coefficient
+// K = max(0, dot(N, L))
+// N is the unit surface normal
+// L is the light vector normalize(lightPosition - surfacePosition)
+
+//Attenuation
+// I = 1/(1 + d/Il + d^2 / Il^2)
+// I is the attenuated light intensity
+// d is the distance between light center and the surface point
+// Il is the original intenisty of the light
+
+//Final Color
+// C = ID * CD * CL
+// C is the final color
+// ID is the diffuse intensity - Given as K * I
+// CD is the diffuse reflection color of the surface (Solid color or surface normal)
+// CL is the light color (use PointLight structure color)
+
+//Phong Reflectance
+// IS = KS^α
+// IS is the specular intensity
+// KS is the specular coefficient
+// α is the highlight exponent
+
+//Specular coefficient
+// KS = max(0, dot(V, R))
+// V is the view vector, the unit vector from the surface towards the viewer
+// V = normalize(ViewerPosition - SurfacePosition)
+// R is is the reflected light vector about the normal
+// R = reflect(-Light Vector, Normal)
+
+//Highlight Exponent
+// α is the highlight exponent, some positive power (powers of two)
+
+//Final Color
+// C = IA * CA + (ID * CD + IS * CS) * CL
+// C is the final color
+// IA is the global ambient intensity, some scaling factor for ambient light
+// CA is the global ambient color, some global solid color influencing the entire scene
+// ID is the light's diffuse intensity (Lambertian reflectance)
+// CD is the diffuse reflection color of the surface (e.g. solid color of the surface)
+// IS is the light's specular intensity (Phong or Blinn-Phong reflectance)
+// CS is the specular reflection color of the surface (can be different from the surface color)
+// CL is the light's color
+
+//Blinn-Phong reflectance
+// IS = KS^α
+// Halfway vector: KS = N * H
+// N is the normal
+// H = normalize(LightVector + ViewVector)
+// α is increased: α = 4*α
+// Final color: Blinn-Phong uses the same formula as Phong using the modified specular coefficient
+
+//Multiple Lights
+// C = IA * CA + sum[n-1, i=0](IDi * CD + ISi * CS) * CLi
+//C is the final color
+//IA is the global ambient intensity (not light-dependent)
+//CA is the global ambient color (not light-dependent)
+//i is the index of the current light
+//n is the light count
+//IDi is the current light's diffuse intensity (Lambertian reflectance)
+//CD is the diffuse reflection color of the surface (not light-dependent)
+//ISi is the current light's specular intensity (Phong or Blinn-Phong reflectance)
+//CS is the specular reflection color of the surface (not light-dependent)
+//CLi is the current light's color
+
 // calcColor: calculate the color of a pixel given a ray
 //    rayDirection: input ray direction
 //    rayOrigin:    input ray origin
