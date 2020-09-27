@@ -109,17 +109,32 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // ID is the diffuse Intensity
 // K is the diffuse coefficient
 // IL is the attenuated light intensity
+float diffuseIntensity(out float ID, in float k, in float IL)
+{
+    ID = k * IL;
+    return ID;
+}
 
 //Diffuse Coefficient
 // K = max(0, dot(N, L))
 // N is the unit surface normal
 // L is the light vector normalize(lightPosition - surfacePosition)
+float diffuseCoefficient(out float k, in vec3 N, in vec3 L)
+{
+    k = max(0.0, dot(N, L));
+    return k;
+}
 
 //Attenuation
 // I = 1/(1 + d/Il + d^2 / Il^2)
 // I is the attenuated light intensity
 // d is the distance between light center and the surface point
 // Il is the original intenisty of the light
+float attenuation(out float I, in float d, in float Il)
+{
+    I = 1.0 / (1.0 + (d / Il) + (d * d) / (Il * Il));
+    return I;
+}
 
 //Final Color
 // C = ID * CD * CL
@@ -127,12 +142,22 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // ID is the diffuse intensity - Given as K * I
 // CD is the diffuse reflection color of the surface (Solid color or surface normal)
 // CL is the light color (use PointLight structure color)
+vec3 lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightColor)
+{
+    C = ID * CD * lightColor.color;
+    return C;
+}
 
 //Phong Reflectance
 // IS = KS^α
 // IS is the specular intensity
 // KS is the specular coefficient
 // α is the highlight exponent
+float phongReflectance(out float IS, in float KS, in float alpha)
+{
+    IS = pow(KS, alpha);
+    return IS;
+}
 
 //Specular coefficient
 // KS = max(0, dot(V, R))
@@ -140,9 +165,18 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // V = normalize(ViewerPosition - SurfacePosition)
 // R is is the reflected light vector about the normal
 // R = reflect(-Light Vector, Normal)
+float specularCoefficient(out float KS, in vec3 V, in vec3 R)
+{
+    KS = max(0.0, dot(V, R));
+    return KS;
+}
 
 //Highlight Exponent
 // α is the highlight exponent, some positive power (powers of two)
+float highlightExponent(in float alpha)
+{
+    return alpha * alpha;
+}
 
 //Final Color
 // C = IA * CA + (ID * CD + IS * CS) * CL
@@ -154,6 +188,13 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // IS is the light's specular intensity (Phong or Blinn-Phong reflectance)
 // CS is the specular reflection color of the surface (can be different from the surface color)
 // CL is the light's color
+vec3 phongColor(out vec3 C, in float IA, in vec3 CA, 
+               in float ID, in vec3 CD, 
+               in float IS, in vec3 CS, in sPointLight lightColor)
+{
+    C = IA * CA + (ID * CD + IS * CS) * lightColor.color;
+    return C;
+}
 
 //Blinn-Phong reflectance
 // IS = KS^α
@@ -162,6 +203,11 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // H = normalize(LightVector + ViewVector)
 // α is increased: α = 4*α
 // Final color: Blinn-Phong uses the same formula as Phong using the modified specular coefficient
+float blinnPhongReflectance(out float IS, in float KS, in float alpha)
+{
+    IS = pow(KS, alpha);
+    return IS;
+}
 
 //Multiple Lights
 // C = IA * CA + sum[n-1, i=0](IDi * CD + ISi * CS) * CLi
@@ -170,11 +216,21 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 //CA is the global ambient color (not light-dependent)
 //i is the index of the current light
 //n is the light count
-//IDi is the current light's diffuse intensity (Lambertian reflectance)
+//ID is the current light's diffuse intensity (Lambertian reflectance)
 //CD is the diffuse reflection color of the surface (not light-dependent)
-//ISi is the current light's specular intensity (Phong or Blinn-Phong reflectance)
+//IS is the current light's specular intensity (Phong or Blinn-Phong reflectance)
 //CS is the specular reflection color of the surface (not light-dependent)
-//CLi is the current light's color
+//CL is the current light's color
+void multipleLights(out vec3 C, in float IA, in vec3 CA, in float i, 
+                    in float n, in float ID, in vec3 CD, 
+                    in float IS, in vec3 CS, in vec3 CL)
+{
+    for(i; i < n - 1.0; i++)
+    {
+        C = IA * CA + ((ID * i) * CD + (IS * i) * CS) * (CL * i);
+    }
+    //return C;
+}
 
 // calcColor: calculate the color of a pixel given a ray
 //    rayDirection: input ray direction
