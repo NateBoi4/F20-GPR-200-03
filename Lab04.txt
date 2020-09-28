@@ -119,10 +119,10 @@ float diffuseIntensity(out float ID, in float k, in float IL)
 // K = max(0, dot(N, L))
 // N is the unit surface normal
 // L is the light vector normalize(lightPosition - surfacePosition)
-float diffuseCoefficient(out float k, in vec3 N, in vec3 L)
+void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 {
     k = max(0.0, dot(N, L));
-    return k;
+    //return k;
 }
 
 //Attenuation
@@ -245,6 +245,11 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     sSphere sphere;
     initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
     
+    sPointLight pointLight;
+    initPointLight(pointLight, vec3(1.5, 1.5, 0.0), vec3(1.0, 1.0, 1.0), 0.5);
+    //float diffCo;
+    //diffuseCoefficient(diffCo, in vec3 N, in vec3 L)
+    
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
     float lSq = lenSq(dp.xy), 
@@ -253,6 +258,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     if(lSq <= rSq)
     {
 		//return vec4(0.0, 1.0, 1.0, 1.0);
+        float diffCo;
         
         //actually z squared
         dp.z = rSq - lSq;
@@ -262,7 +268,9 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         vec3 normal = 
             //normalize(position - sphere.center.xyz);
         	(position - sphere.center.xyz) / sphere.radius;
-        return vec4(normal * 0.5 + 0.5, 1.0);
+        vec3 lightVector = normalize(vec3(pointLight.center) - position);
+        diffuseCoefficient(diffCo, normal, lightVector);
+        return vec4(vec3(diffCo), 1.0);
     }
     
 	
