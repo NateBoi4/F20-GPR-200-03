@@ -109,10 +109,9 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 // ID is the diffuse Intensity
 // K is the diffuse coefficient
 // IL is the attenuated light intensity
-float diffuseIntensity(out float ID, in float k, in float IL)
+void diffuseIntensity(out float ID, in float k, in float IL)
 {
     ID = k * IL;
-    return ID;
 }
 
 //Diffuse Coefficient
@@ -122,7 +121,6 @@ float diffuseIntensity(out float ID, in float k, in float IL)
 void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 {
     k = max(0.0, dot(N, L));
-    //return k;
 }
 
 //Attenuation
@@ -130,10 +128,9 @@ void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 // I is the attenuated light intensity
 // d is the distance between light center and the surface point
 // Il is the original intenisty of the light
-float attenuation(out float I, in float d, in float Il)
+void attenuation(out float I, in float d, in float Il)
 {
-    I = 1.0 / (1.0 + (d / Il) + (d * d) / (Il * Il));
-    return I;
+    I = 1.0 / ((1.0 + d / Il) * (1.0 + d / Il));
 }
 
 //Final Color
@@ -142,10 +139,9 @@ float attenuation(out float I, in float d, in float Il)
 // ID is the diffuse intensity - Given as K * I
 // CD is the diffuse reflection color of the surface (Solid color or surface normal)
 // CL is the light color (use PointLight structure color)
-vec3 lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightColor)
+void lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightColor)
 {
     C = ID * CD * lightColor.color;
-    return C;
 }
 
 //Phong Reflectance
@@ -153,10 +149,9 @@ vec3 lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightCo
 // IS is the specular intensity
 // KS is the specular coefficient
 // α is the highlight exponent
-float phongReflectance(out float IS, in float KS, in float alpha)
+void specularIntensity(out float IS, in float KS, in float alpha)
 {
     IS = pow(KS, alpha);
-    return IS;
 }
 
 //Specular coefficient
@@ -165,17 +160,17 @@ float phongReflectance(out float IS, in float KS, in float alpha)
 // V = normalize(ViewerPosition - SurfacePosition)
 // R is is the reflected light vector about the normal
 // R = reflect(-Light Vector, Normal)
-float specularCoefficient(out float KS, in vec3 V, in vec3 R)
+void specularCoefficient(out float KS, in vec3 V, in vec3 R)
 {
     KS = max(0.0, dot(V, R));
-    return KS;
 }
 
 //Highlight Exponent
 // α is the highlight exponent, some positive power (powers of two)
-float highlightExponent(in float alpha)
+void highlightExponent(out float alpha)
 {
-    return alpha * alpha;
+    alpha *= alpha;
+    alpha *= alpha;
 }
 
 //Final Color
@@ -246,9 +241,17 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
     
     sPointLight pointLight;
-    initPointLight(pointLight, vec3(1.5, 1.5, 0.0), vec3(1.0, 1.0, 1.0), 0.5);
-    //float diffCo;
-    //diffuseCoefficient(diffCo, in vec3 N, in vec3 L)
+    initPointLight(pointLight, vec3(2.0, 2.0, 0.0), vec3(1.0, 0.0, 0.0), 100.0);
+    
+    float diffCo;
+    float atten;
+    float diffInt;
+    vec3 lambert;
+    
+    float specCo;
+    float highEx = 2.0;
+    float specInt;
+    vec3 phong;
     
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
@@ -258,7 +261,6 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     if(lSq <= rSq)
     {
 		//return vec4(0.0, 1.0, 1.0, 1.0);
-        float diffCo;
         
         //actually z squared
         dp.z = rSq - lSq;
@@ -268,9 +270,32 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         vec3 normal = 
             //normalize(position - sphere.center.xyz);
         	(position - sphere.center.xyz) / sphere.radius;
+        
         vec3 lightVector = normalize(vec3(pointLight.center) - position);
+        
+        float dist = distance(vec3(pointLight.center), position);
+        
+        vec3 viewVector = normalize(vec3(rayOrigin) - position);
+        
+        vec3 reflectedLightVec = reflect(-(lightVector), normal);
+        
+        /*
         diffuseCoefficient(diffCo, normal, lightVector);
-        return vec4(vec3(diffCo), 1.0);
+        
+        attenuation(atten, dist, pointLight.intensity);
+        
+        diffuseIntensity(diffInt, diffCo, atten);
+        
+        lambertianColor(lambert, diffInt, normal, pointLight);
+		*/
+        
+        specularCoefficient(specCo, viewVector, reflectedLightVec);
+        
+        highlightExponent(highEx);
+        
+        specularIntensity(specInt, specCo, highEx);
+        
+        return vec4(vec3(specInt), 1.0);
     }
     
 	
