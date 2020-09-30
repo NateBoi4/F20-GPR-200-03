@@ -86,6 +86,12 @@ float lenSq(vec2 x)
     return dot(x, x);
 }
 
+float lenSq(vec3 x)
+{
+    return dot(x, x);
+}
+
+
 //sPointLight: Define a point light and what it entails
 //	center: Center of the point light on the screen
 //	color: Color of the point light
@@ -138,7 +144,7 @@ void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 // I = 1/(1 + d/Il + d^2 / Il^2)
 // I is the attenuated light intensity
 // d is the distance between light center and the surface point
-// Il is the original intenisty of the light
+// lightIntensity is the original intenisty of the light
 void attenuation(out float I, in float d, in sPointLight lightIntensity)
 {
     float intensityInv = 1.0 / lightIntensity.intensity;
@@ -163,7 +169,7 @@ void lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightCo
 // IS = KS^α
 // IS is the specular intensity
 // KS is the specular coefficient
-// α is the highlight exponent
+// alpha is the highlight exponent
 void specularIntensity(out float IS, in float KS, in float alpha)
 {
     IS = pow(KS, alpha);
@@ -185,7 +191,7 @@ void specularCoefficient(out float KS, in vec3 V, in vec3 R)
 //Highlight Exponent
 //Focuses the highlight to a point by raising the coefficient to a positive power
 //which reduces its effects.
-// α is the highlight exponent, some positive power (powers of two)
+// alpha is the highlight exponent, some positive power (powers of two)
 void highlightExponent(out float alpha)
 {
     alpha *= alpha;
@@ -352,16 +358,20 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         	(position - sphere.center.xyz) / sphere.radius;
         
         vec3 lightVector = 
-            normalize(vec3(pointLight.center) - position);
-            //(vec3(pointLight.center) - position) / ;
+            //normalize(pointLight.center.xyz - position);
+            (pointLight.center.xyz - position) * inversesqrt(lenSq((pointLight.center.xyz - position)));
         
-        float dist = distance(vec3(pointLight.center), position);
+        float dist = distance(pointLight.center.xyz, position);
         
-        vec3 viewVector = normalize(vec3(rayOrigin) - position);
+        vec3 viewVector = 
+            //normalize(rayOrigin.xyz - position);
+            (rayOrigin.xyz - position) * inversesqrt(lenSq((rayOrigin.xyz - position)));
         
         vec3 reflectedLightVec = reflect(-(lightVector), normal);
         
-        vec3 halfwayVector = normalize(lightVector + viewVector);
+        vec3 halfwayVector = 
+            //normalize(lightVector + viewVector);
+            (lightVector + viewVector) * inversesqrt(lenSq((lightVector + viewVector)));
         
         //Lambertian Reflectance
         diffuseCoefficient(diffCo, normal, lightVector);
@@ -399,9 +409,9 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
                     4.0, diffInt, normal, 
                     specCo, vec3(1.0, 1.0, 1.0), pointLight);
         
-        return vec4(lambert, alpha);
+        //return vec4(lambert, alpha);
         //return vec4(phong, alpha);
-        //return vec4(blinnPhong, alpha);
+        return vec4(blinnPhong, alpha);
         //return vec4(lights, alpha);
     }
     
