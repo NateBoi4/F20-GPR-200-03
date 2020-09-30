@@ -233,11 +233,11 @@ void blinnPhongColor(out vec3 C, in float IA, in vec3 CA,
 //CL is the current light's color
 void multipleLights(out vec3 C, in float IA, in vec3 CA, in float i, 
                     in float n, in float ID, in vec3 CD, 
-                    in float IS, in vec3 CS, in vec3 CL)
+                    in float IS, in vec3 CS, in sPointLight lightColor)
 {
     for(i; i < n - 1.0; i++)
     {
-        C = IA * CA + ((ID * i) * CD + (IS * i) * CS) * (CL * i);
+        C = IA * CA + ((ID * i) * CD + (IS * i) * CS) * (lightColor.color * i);
     }
 }
 
@@ -257,6 +257,13 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     sPointLight pointLight;
     initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 100.0);
     
+    sPointLight pointLightTwo;
+    initPointLight(pointLightTwo, vec3(-3.0, -3.0, 0.0), vec3(1.0, 0.0, 0.5), 100.0);
+    
+    float alpha = 1.0;
+    float ambientIntensity = 0.2;
+    vec3 ambientColor = vec3(0.0, 0.7, 1.0);
+    
     float diffCo;
     float atten;
     float diffInt;
@@ -270,6 +277,8 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     float bSpecCo;
     float bSpecInt;
     vec3 blinnPhong;
+    
+    vec3 lights;
     
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
@@ -299,7 +308,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         vec3 halfwayVector = normalize(lightVector + viewVector);
         
-        
+        //Lambertian Reflectance
         diffuseCoefficient(diffCo, normal, lightVector);
         
         attenuation(atten, dist, pointLight);
@@ -308,30 +317,37 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         lambertianColor(lambert, diffInt, vec3(1.0, 1.0, 1.0), pointLight);
 		
-        
+        //Phong Reflectance
         specularCoefficient(specCo, viewVector, reflectedLightVec);
         
         highlightExponent(highEx);
         
         specularIntensity(specInt, specCo, highEx);
         
-        phongColor(phong, 0.2, vec3(0.0, 0.7, 1.0), 
+        phongColor(phong, ambientIntensity, ambientColor, 
                diffInt, vec3(0.5, 0.5, 0.5), 
                specInt, vec3(1.0, 1.0, 1.0), pointLight);
         
-        
+        //Blinn-Phong Reflectance
         blinnSpecularCoefficient(bSpecCo, normal, halfwayVector);
         
         higherExponent(highEx);
         
         blinnSpecularIntensity(bSpecInt, bSpecCo, highEx);
         
-        blinnPhongColor(blinnPhong, 0.2, vec3(0.0, 0.7, 1.0), 
+        blinnPhongColor(blinnPhong, ambientIntensity, ambientColor, 
                diffInt, vec3(0.5, 0.5, 0.5), 
                bSpecInt, vec3(1.0, 1.0, 1.0), pointLight);
         
+        //Multiple Lights
+        multipleLights(lights, ambientIntensity, ambientColor, 0.0, 
+                    4.0, diffInt, normal, 
+                    specCo, vec3(1.0, 1.0, 1.0), pointLight);
         
-        return vec4(blinnPhong, 1.0);
+        //return vec4(lambert, alpha);
+        //return vec4(phong, alpha);
+        return vec4(blinnPhong, alpha);
+        //return vec4(lights, alpha);
     }
     
 	
