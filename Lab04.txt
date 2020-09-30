@@ -128,9 +128,9 @@ void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 // I is the attenuated light intensity
 // d is the distance between light center and the surface point
 // Il is the original intenisty of the light
-void attenuation(out float I, in float d, in float Il)
+void attenuation(out float I, in float d, in sPointLight lightIntensity)
 {
-    I = 1.0 / ((1.0 + d / Il) * (1.0 + d / Il));
+    I = 1.0 / ((1.0 + d / lightIntensity.intensity) * (1.0 + d / lightIntensity.intensity));
 }
 
 //Final Color
@@ -183,12 +183,21 @@ void highlightExponent(out float alpha)
 // IS is the light's specular intensity (Phong or Blinn-Phong reflectance)
 // CS is the specular reflection color of the surface (can be different from the surface color)
 // CL is the light's color
-vec3 phongColor(out vec3 C, in float IA, in vec3 CA, 
+void phongColor(out vec3 C, in float IA, in vec3 CA, 
                in float ID, in vec3 CD, 
                in float IS, in vec3 CS, in sPointLight lightColor)
 {
     C = IA * CA + (ID * CD + IS * CS) * lightColor.color;
-    return C;
+}
+
+void blinnSpecularCoefficient(out float KS, in vec3 N, in vec3 H)
+{
+    KS = dot(N, H);
+}
+
+void higherExponent(out float alpha)
+{
+    alpha *= 4.0;
 }
 
 //Blinn-Phong reflectance
@@ -198,10 +207,16 @@ vec3 phongColor(out vec3 C, in float IA, in vec3 CA,
 // H = normalize(LightVector + ViewVector)
 // α is increased: α = 4*α
 // Final color: Blinn-Phong uses the same formula as Phong using the modified specular coefficient
-float blinnPhongReflectance(out float IS, in float KS, in float alpha)
+void blinnSpecularIntensity(out float IS, in float KS, in float alpha)
 {
     IS = pow(KS, alpha);
-    return IS;
+}
+
+void blinnPhongColor(out vec3 C, in float IA, in vec3 CA, 
+               in float ID, in vec3 CD, 
+               in float IS, in vec3 CS, in sPointLight lightColor)
+{
+    C = IA * CA + (ID * CD + IS * CS) * lightColor.color;
 }
 
 //Multiple Lights
@@ -224,7 +239,6 @@ void multipleLights(out vec3 C, in float IA, in vec3 CA, in float i,
     {
         C = IA * CA + ((ID * i) * CD + (IS * i) * CS) * (CL * i);
     }
-    //return C;
 }
 
 // calcColor: calculate the color of a pixel given a ray
@@ -241,7 +255,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
     
     sPointLight pointLight;
-    initPointLight(pointLight, vec3(2.0, 2.0, 0.0), vec3(1.0, 0.0, 0.0), 100.0);
+    initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 100.0);
     
     float diffCo;
     float atten;
@@ -252,6 +266,10 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     float highEx = 2.0;
     float specInt;
     vec3 phong;
+    
+    float bSpecCo;
+    float bSpecInt;
+    vec3 blinnPhong;
     
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
@@ -279,14 +297,16 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         vec3 reflectedLightVec = reflect(-(lightVector), normal);
         
+        vec3 halfwayVector = normalize(lightVector + viewVector);
+        
         
         diffuseCoefficient(diffCo, normal, lightVector);
         
-        attenuation(atten, dist, pointLight.intensity);
+        attenuation(atten, dist, pointLight);
         
         diffuseIntensity(diffInt, diffCo, atten);
         
-        lambertianColor(lambert, diffInt, normal, pointLight);
+        lambertianColor(lambert, diffInt, vec3(1.0, 1.0, 1.0), pointLight);
 		
         
         specularCoefficient(specCo, viewVector, reflectedLightVec);
@@ -295,19 +315,30 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         specularIntensity(specInt, specCo, highEx);
         
-        phongColor(phong, 0.2, vec3(0.0, 0.5, 1.0), 
-               diffInt, normal, 
+        phongColor(phong, 0.2, vec3(0.0, 0.7, 1.0), 
+               diffInt, vec3(0.5, 0.5, 0.5), 
                specInt, vec3(1.0, 1.0, 1.0), pointLight);
         
         
-        return vec4(phong, 1.0);
+        blinnSpecularCoefficient(bSpecCo, normal, halfwayVector);
+        
+        higherExponent(highEx);
+        
+        blinnSpecularIntensity(bSpecInt, bSpecCo, highEx);
+        
+        blinnPhongColor(blinnPhong, 0.2, vec3(0.0, 0.7, 1.0), 
+               diffInt, vec3(0.5, 0.5, 0.5), 
+               bSpecInt, vec3(1.0, 1.0, 1.0), pointLight);
+        
+        
+        return vec4(blinnPhong, 1.0);
     }
     
 	
 	// BACKGROUND
 	const vec3 warm = vec3(0.8, 0.4, 0.2), cool = vec3(0.2, 0.4, 0.8);
-	//return vec4(mix(warm, cool, rayDirection.y), 1.0);
-    return vec4(0.5);
+	return vec4(mix(warm, cool, rayDirection.y), 1.0);
+    //return vec4(0.5);
 }
 
 // mainImage: process the current pixel (exactly one call per pixel)
