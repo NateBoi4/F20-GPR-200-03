@@ -279,7 +279,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         vec3 reflectedLightVec = reflect(-(lightVector), normal);
         
-        /*
+        
         diffuseCoefficient(diffCo, normal, lightVector);
         
         attenuation(atten, dist, pointLight.intensity);
@@ -287,7 +287,7 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         diffuseIntensity(diffInt, diffCo, atten);
         
         lambertianColor(lambert, diffInt, normal, pointLight);
-		*/
+		
         
         specularCoefficient(specCo, viewVector, reflectedLightVec);
         
@@ -295,7 +295,12 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
         
         specularIntensity(specInt, specCo, highEx);
         
-        return vec4(vec3(specInt), 1.0);
+        phongColor(phong, 0.2, vec3(0.0, 0.5, 1.0), 
+               diffInt, normal, 
+               specInt, vec3(1.0, 1.0, 1.0), pointLight);
+        
+        
+        return vec4(phong, 1.0);
     }
     
 	
