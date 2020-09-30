@@ -1,4 +1,5 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+// Modified by Nathan Boisvert
 
 // asPoint: promote a 3D vector into a 4D vector representing a point (w=1)
 //    point: input 3D vector
@@ -61,42 +62,44 @@ void calcRay(out vec4 rayDirection, out vec4 rayOrigin,
     rayDirection = asOffset(viewport - eyePosition);
 }
 
+//sSphere: Define a sphere and what it entails
+//	center: Center of sphere as a point on the screen
+//	radius: Radius of the sphere
 struct sSphere
 {
     vec4 center;
     float radius;
 };
-/*
-bool initSphere(out sSphere sphere, in vec3 center, in float radius)
-{
-    sphere.center = asPoint(center);
-    if(radius > 0)
-	{
-		sphere.radius = radius;
-		return true;
-	}
-	sphere.radius = 1.0;
-	return false;
-}
-*/
+
+//initSphere: Set the values of a sphere object created
+//Takes in a sphere object as a structure and sets its center and radius
+//according to the values passed into the function
 void initSphere(out sSphere sphere, in vec3 center, in float radius)
 {
     sphere.center = asPoint(center);
     sphere.radius = radius;
 }
 
+//Returns the length^2 of a vector
 float lenSq(vec2 x)
 {
     return dot(x, x);
 }
 
+//sPointLight: Define a point light and what it entails
+//	center: Center of the point light on the screen
+//	color: Color of the point light
+//	intensity: Represents the strength of the light, how far it can reach.
 struct sPointLight
 {
     vec4 center;
     vec3 color;
     float intensity;
 };
-    
+
+//initPointLight: Set the values of a point light object created
+//Takes in a point light object as a structure and sets its center, color, and intensity
+//according to the values passed into the function
 void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in float intensity)
 {
     light.center = asPoint(center);
@@ -105,6 +108,8 @@ void initPointLight(out sPointLight light, in vec3 center, in vec3 color, in flo
 }
 
 //Diffuse Intensity
+//Calculate the intensity of a point light as a relation of the surface
+//being drawn to.
 // ID = K * IL
 // ID is the diffuse Intensity
 // K is the diffuse coefficient
@@ -115,6 +120,9 @@ void diffuseIntensity(out float ID, in float k, in float IL)
 }
 
 //Diffuse Coefficient
+//Returns a value between 0.0 and 1.0
+//This value is highest when the light is perpendicular to the surface
+//This equation is a simplification of the Lambertian cosine law.
 // K = max(0, dot(N, L))
 // N is the unit surface normal
 // L is the light vector normalize(lightPosition - surfacePosition)
@@ -124,27 +132,34 @@ void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
 }
 
 //Attenuation
+//Replicates how light's intensity decreases as it travels
+//further from its origin.
+//returns the light's intensity at each point on the surface
 // I = 1/(1 + d/Il + d^2 / Il^2)
 // I is the attenuated light intensity
 // d is the distance between light center and the surface point
 // Il is the original intenisty of the light
 void attenuation(out float I, in float d, in sPointLight lightIntensity)
 {
-    I = 1.0 / ((1.0 + d / lightIntensity.intensity) * (1.0 + d / lightIntensity.intensity));
+    float intensityInv = 1.0 / lightIntensity.intensity;
+    I = 1.0 / ((1.0 + d * intensityInv) * (1.0 + d * intensityInv));
 }
 
-//Final Color
+//Lambertian Reflectance
+//Uses diffuse shading to bounce rays randomly off of surfaces
+//which results in the final color.
 // C = ID * CD * CL
 // C is the final color
 // ID is the diffuse intensity - Given as K * I
 // CD is the diffuse reflection color of the surface (Solid color or surface normal)
-// CL is the light color (use PointLight structure color)
+// lightColor is the light color (use PointLight structure color)
 void lambertianColor(out vec3 C, in float ID, in vec3 CD, in sPointLight lightColor)
 {
     C = ID * CD * lightColor.color;
 }
 
-//Phong Reflectance
+//Specular Intensity
+//Calculate the point light intensity in relation to the viewer
 // IS = KS^α
 // IS is the specular intensity
 // KS is the specular coefficient
@@ -155,6 +170,8 @@ void specularIntensity(out float IS, in float KS, in float alpha)
 }
 
 //Specular coefficient
+//Represents the alignment of the viewer's line of sight to the surface
+//while light is being reflected off the object surface.
 // KS = max(0, dot(V, R))
 // V is the view vector, the unit vector from the surface towards the viewer
 // V = normalize(ViewerPosition - SurfacePosition)
@@ -166,6 +183,8 @@ void specularCoefficient(out float KS, in vec3 V, in vec3 R)
 }
 
 //Highlight Exponent
+//Focuses the highlight to a point by raising the coefficient to a positive power
+//which reduces its effects.
 // α is the highlight exponent, some positive power (powers of two)
 void highlightExponent(out float alpha)
 {
@@ -173,7 +192,9 @@ void highlightExponent(out float alpha)
     alpha *= alpha;
 }
 
-//Final Color
+//Phong Reflectance
+//Improves on the Lambertian model by adding specular highlights
+//Adds a small highlight based on the visibility of the light on the surface
 // C = IA * CA + (ID * CD + IS * CS) * CL
 // C is the final color
 // IA is the global ambient intensity, some scaling factor for ambient light
@@ -182,7 +203,7 @@ void highlightExponent(out float alpha)
 // CD is the diffuse reflection color of the surface (e.g. solid color of the surface)
 // IS is the light's specular intensity (Phong or Blinn-Phong reflectance)
 // CS is the specular reflection color of the surface (can be different from the surface color)
-// CL is the light's color
+// lightColor is the light's color
 void phongColor(out vec3 C, in float IA, in vec3 CA, 
                in float ID, in vec3 CD, 
                in float IS, in vec3 CS, in sPointLight lightColor)
@@ -190,21 +211,25 @@ void phongColor(out vec3 C, in float IA, in vec3 CA,
     C = IA * CA + (ID * CD + IS * CS) * lightColor.color;
 }
 
+//Blinn Phong Specular Coefficient
+//KS is the specular coefficient given as KS = dot(N, H)
+//N is the unit normal of the surface
+//H is the halfway vector which is the average of the light and view vectors
+//H = normalize(N, L)
 void blinnSpecularCoefficient(out float KS, in vec3 N, in vec3 H)
 {
     KS = dot(N, H);
 }
 
+//Increases the highlight exponent for Blinn-Phong reflectance
 void higherExponent(out float alpha)
 {
     alpha *= 4.0;
 }
 
-//Blinn-Phong reflectance
+//Blinn-Phong Specular Intensity
 // IS = KS^α
-// Halfway vector: KS = N * H
-// N is the normal
-// H = normalize(LightVector + ViewVector)
+// KS is the specular coefficient
 // α is increased: α = 4*α
 // Final color: Blinn-Phong uses the same formula as Phong using the modified specular coefficient
 void blinnSpecularIntensity(out float IS, in float KS, in float alpha)
@@ -212,6 +237,18 @@ void blinnSpecularIntensity(out float IS, in float KS, in float alpha)
     IS = pow(KS, alpha);
 }
 
+//Blinn-Phong Reflectance
+//Improves on the Phong Reflectance by making the highlight sharper
+//and giving it a more oval shape.
+// C = IA * CA + (ID * CD + IS * CS) * CL
+// C is the final color
+// IA is the global ambient intensity, some scaling factor for ambient light
+// CA is the global ambient color, some global solid color influencing the entire scene
+// ID is the light's diffuse intensity (Lambertian reflectance)
+// CD is the diffuse reflection color of the surface (e.g. solid color of the surface)
+// IS is the light's specular intensity (Phong or Blinn-Phong reflectance)
+// CS is the specular reflection color of the surface (can be different from the surface color)
+// lightColor is the light's color
 void blinnPhongColor(out vec3 C, in float IA, in vec3 CA, 
                in float ID, in vec3 CD, 
                in float IS, in vec3 CS, in sPointLight lightColor)
@@ -220,6 +257,8 @@ void blinnPhongColor(out vec3 C, in float IA, in vec3 CA,
 }
 
 //Multiple Lights
+//The total light influencing the color at any point on the surface, 
+//is the sum of all of the lights' influences.
 // C = IA * CA + sum[n-1, i=0](IDi * CD + ISi * CS) * CLi
 //C is the final color
 //IA is the global ambient intensity (not light-dependent)
@@ -230,12 +269,12 @@ void blinnPhongColor(out vec3 C, in float IA, in vec3 CA,
 //CD is the diffuse reflection color of the surface (not light-dependent)
 //IS is the current light's specular intensity (Phong or Blinn-Phong reflectance)
 //CS is the specular reflection color of the surface (not light-dependent)
-//CL is the current light's color
+//lightColor is the current light's color
 void multipleLights(out vec3 C, in float IA, in vec3 CA, in float i, 
                     in float n, in float ID, in vec3 CD, 
                     in float IS, in vec3 CS, in sPointLight lightColor)
 {
-    for(i; i < n - 1.0; i++)
+    for(i; i < n - 1.0; ++i)
     {
         C = IA * CA + ((ID * i) * CD + (IS * i) * CS) * (lightColor.color * i);
     }
@@ -251,15 +290,19 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     //return rayDirection;
     
     // SCENE
+    //Declare a sphere and define its components
     sSphere sphere;
     initSphere(sphere, vec3(0.0, 0.0, -4.0), 0.5);
     
+    //Declare a point light and define its components
     sPointLight pointLight;
     initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 100.0);
     
+    //Declare a point light and define its components
     sPointLight pointLightTwo;
     initPointLight(pointLightTwo, vec3(-3.0, -3.0, 0.0), vec3(1.0, 0.0, 0.5), 100.0);
     
+    //Variable Declarations and definitions
     float alpha = 1.0;
     float ambientIntensity = 0.2;
     vec3 ambientColor = vec3(0.0, 0.7, 1.0);
@@ -280,6 +323,16 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
     
     vec3 lights;
     
+    /*
+	Gets the distance from the circle center to the current pixel being evaluated
+	and if that distance is inside the circle radius then a ray is bounced off
+	the surface normal. Involves calculations for: current distance, unit normal of
+	the surface, the surface position of the current pixel, the light vector as the normal
+	of the distance from the surfaces position to the light position, the distance between the
+	light center and the surface position, the view vector as a unit vector from the surface position
+	towards the viewer's position as the source of the ray, the reflection of the light vector from the
+	normal, and the halfway vector as the average of the light vector and view vector.
+	*/
     vec3 dp;
     dp.xy = rayDirection.xy - sphere.center.xy;
     float lSq = lenSq(dp.xy), 
@@ -298,7 +351,9 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
             //normalize(position - sphere.center.xyz);
         	(position - sphere.center.xyz) / sphere.radius;
         
-        vec3 lightVector = normalize(vec3(pointLight.center) - position);
+        vec3 lightVector = 
+            normalize(vec3(pointLight.center) - position);
+            //(vec3(pointLight.center) - position) / ;
         
         float dist = distance(vec3(pointLight.center), position);
         
@@ -344,9 +399,9 @@ vec4 calcColor(in vec4 rayDirection, in vec4 rayOrigin)
                     4.0, diffInt, normal, 
                     specCo, vec3(1.0, 1.0, 1.0), pointLight);
         
-        //return vec4(lambert, alpha);
+        return vec4(lambert, alpha);
         //return vec4(phong, alpha);
-        return vec4(blinnPhong, alpha);
+        //return vec4(blinnPhong, alpha);
         //return vec4(lights, alpha);
     }
     
