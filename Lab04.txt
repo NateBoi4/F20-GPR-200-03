@@ -1,6 +1,10 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
 // Modified by Nathan Boisvert
 
+//Methods for Optimizations were researched on:
+//https://www.khronos.org/opengl/wiki/GLSL_Optimizations
+//http://cdn.imgtec.com/sdk-documentation/PowerVR+Low+level+GLSL+Optimization.pdf
+
 // asPoint: promote a 3D vector into a 4D vector representing a point (w=1)
 //    point: input 3D vector
 vec4 asPoint(in vec3 point)
