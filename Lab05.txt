@@ -170,9 +170,10 @@ void crossFadeEffect(out vec4 blend, in vec4 sampleOne, in vec4 sampleTwo, in fl
 	blend = mix(sampleOne, sampleTwo, t);
 }
 
-void distortionEffect()
+void distortionEffect(out sCoord distort)
 {
-	
+	distort.x = cos(distort.x);
+    distort.y = sin(distort.y);
 }
 
 //------------------------------------------------------------
@@ -198,7 +199,7 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     //sCoord loc = vp.uv; //Relative to display (output)
     
     //Time
-    float speed = 2.0;
+    //float speed = 2.0;
     float sTime = max(0.0, sin(t));
     
     //Texture
@@ -216,6 +217,9 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     locZero = ratioZero * locZero; //zoom + shift
     locOne = ratioOne * locOne; //zoom + shift
     
+    distortionEffect(locZero);
+    distortionEffect(locOne);
+    
     color4 colorZero = texture(iChannel0, locZero); //Color
     color4 colorOne = texture(iChannel1, locOne); //Color
     
@@ -223,7 +227,7 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     crossFadeEffect(crossFade, colorZero, colorOne, sTime);
     
     return crossFade;
-    //return texture(iChannel0, loc).rrrr; //grayscale
+    //return texture(iChannel0, locZero); //grayscale
 }
 
 
