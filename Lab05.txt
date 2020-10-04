@@ -165,6 +165,15 @@ void initRayOrtho(out sRay ray,
     initRayPersp(ray, eyePosition + sBasis(viewport.xy, 0.0), viewport);
 }
 
+void crossFadeEffect(out vec4 blend, in vec4 sampleOne, in vec4 sampleTwo, in float t)
+{
+	blend = mix(sampleOne, sampleTwo, t);
+}
+
+void distortionEffect()
+{
+	
+}
 
 //------------------------------------------------------------
 // RENDERING FUNCTIONS
@@ -190,18 +199,30 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     
     //Time
     float speed = 2.0;
-    float st = sin(t) * speed;
+    float sTime = max(0.0, sin(t));
     
     //Texture
     sCoord px = vp.pixelCoord;
-    sDCoord resOne = iChannelResolution[0].xy;
-    sDCoord resTwo = iChannelResolution[1].xy;
-    sScalar ratio = resOne.y * vp.resolutionInv.y;
-    sCoord loc = px / resOne; // relative to texture (input)
-    loc = ratio * loc; //zoom + shift
-    vec4 colorZero = texture(iChannel0, loc); //Color
-    vec4 colorOne = texture(iChannel1, loc); //Color
-    return mix(colorZero, colorOne, st);
+    
+    sDCoord resZero = iChannelResolution[0].xy;
+    sDCoord resOne = iChannelResolution[1].xy;
+    
+    sScalar ratioZero = resZero.y * vp.resolutionInv.y;
+    sScalar ratioOne = resOne.y * vp.resolutionInv.y;
+    
+    sCoord locZero = px / resZero; // relative to texture (input)
+    sCoord locOne = px / resOne; // relative to texture (input)
+    
+    locZero = ratioZero * locZero; //zoom + shift
+    locOne = ratioOne * locOne; //zoom + shift
+    
+    color4 colorZero = texture(iChannel0, locZero); //Color
+    color4 colorOne = texture(iChannel1, locOne); //Color
+    
+    color4 crossFade;
+    crossFadeEffect(crossFade, colorZero, colorOne, sTime);
+    
+    return crossFade;
     //return texture(iChannel0, loc).rrrr; //grayscale
 }
 
