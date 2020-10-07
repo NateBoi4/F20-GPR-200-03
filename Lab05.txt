@@ -186,6 +186,76 @@ sCoord wave(in sCoord originalLocation)
     return deformedLocation;
 }
 
+//Diffuse Intensity
+//Calculate the intensity of a point light as a relation of the surface
+//being drawn to.
+// ID = K * IL
+// ID is the diffuse Intensity
+// K is the diffuse coefficient
+// IL is the attenuated light intensity
+void diffuseIntensity(out float ID, in float k, in float IL)
+{
+    ID = k * IL;
+}
+
+//Diffuse Coefficient
+//Returns a value between 0.0 and 1.0
+//This value is highest when the light is perpendicular to the surface
+//This equation is a simplification of the Lambertian cosine law.
+// K = max(0, dot(N, L))
+// N is the unit surface normal
+// L is the light vector normalize(lightPosition - surfacePosition)
+void diffuseCoefficient(out float k, in vec3 N, in vec3 L)
+{
+    k = max(0.0, dot(N, L));
+}
+
+//Attenuation
+//Replicates how light's intensity decreases as it travels
+//further from its origin.
+//returns the light's intensity at each point on the surface
+// I = 1/(1 + d/Il + d^2 / Il^2)
+// I is the attenuated light intensity
+// d is the distance between light center and the surface point
+// lightIntensity is the original intenisty of the light
+void attenuation(out float I, in float d, in float lightIntensity)
+{
+    float intensityInv = 1.0 / lightIntensity;
+    I = 1.0 / ((1.0 + d * intensityInv) * (1.0 + d * intensityInv));
+}
+
+//Lambertian Reflectance
+//Uses diffuse shading to bounce rays randomly off of surfaces
+//which results in the final color.
+// C = ID * CD * CL
+// C is the final color
+// ID is the diffuse intensity - Given as K * I
+// CD is the diffuse reflection color of the surface (Solid color or surface normal)
+// lightColor is the light color (use PointLight structure color)
+void lambertianColor(out vec3 C, in float ID, in vec3 CD, in vec3 lightColor)
+{
+    C = ID * CD * lightColor;
+}
+
+//Rotation Matrix: http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
+mat4 rotationMatrix(in vec3 axis, in float angle)
+{
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+    
+    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+                0.0,  								1.0,           						0.0,  								0.0,
+                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+                0.0,                                0.0,                                0.0,                                1.0);
+}
+
+vec3 rotateCube(in vec3 v, in vec3 axis, in float t) {
+	mat4 m = rotationMatrix(axis, t);
+	return (m * vec4(v, 1.0)).xyz;
+}
+
 // calcColor: calculate the color of current pixel
 //	  vp:  input viewport info
 //	  ray: input ray info
@@ -238,19 +308,61 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     if(lSq <= rSq)
     {
         
-    	distortionEffect(locZero, t * 0.5);
-    	distortionEffect(locOne, t * 0.5);
+    	//distortionEffect(locZero, t * 0.5);
+    	//distortionEffect(locOne, t * 0.5);
     }
     
-    color4 colorZero = texture(iChannel0, locZero + vec2(t, 0.0) * 0.5); //Color
-    color4 colorOne = texture(iChannel1, locOne + vec2(t, 0.0) * 0.5); //Color
+    vec3 lightCenter = vec3(3.0, 3.0, 0.0);
+    vec3 lightColor = vec3(1.0, 0.0, 0.0);
+    float lightIntensity = 100.0;
+    float diffCo;
+    float atten;
+    float diffInt;
+    vec3 lambert;
+    
+    vec3 position = vp.viewportPoint.xyz;
+    
+    vec3 normal = normalize(vec3(position.xy, 1.0));
+    
+    vec3 lightVector = (lightCenter - position) 
+       	* inversesqrt(lengthSq((lightCenter - position)));
+    
+    float dist = distance(lightCenter, position);
+    
+    //Lambertian Reflectance
+    diffuseCoefficient(diffCo, normal, lightVector);
+        
+    attenuation(atten, dist, lightIntensity);
+        
+    diffuseIntensity(diffInt, diffCo, atten);
+        
+    //lambertianColor(lambert, diffInt, vec3(1.0, 1.0, 1.0), lightColor);
+    
+    
+    //color4 colorZero = texture(iChannel0, locZero + vec2(t, 0.0) * 0.5); //Color
+    //color4 colorOne = texture(iChannel1, locOne + vec2(t, 0.0) * 0.5); //Color
     color4 crossFade;
     
-    crossFadeEffect(crossFade, colorZero, colorOne, sTime);
+    //crossFadeEffect(crossFade, colorZero, colorOne, sTime);
+    
+    vec3 cubeloc = ray.direction.xyz;
+    //cubeloc.z = -1.0 * cubeloc.z;
+    
+    cubeloc = rotateCube(cubeloc, cubeloc, t);
+    
+    color4 colorZero = texture(iChannel0, locZero); //Color
+    color4 colorOne = texture(iChannel1, locOne); //Color
+    color4 colorTwo = texture(iChannel2, cubeloc); //Color
+    
+    //lambertianColor(colorZero.xyz, diffInt, vec3(1.0, 1.0, 1.0), lightColor);
     
     //return crossFade;
-    return colorZero;
-    //return texture(iChannel0, locZero).rrrr; //grayscale
+    //return colorZero;
+    //return colorOne;
+    return colorTwo;
+    //return vec4(lambert, 1.0);
+    
+    
     
     //tetsing/reference for shading
     //return vp.viewportPoint;
