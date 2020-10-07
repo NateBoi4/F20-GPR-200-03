@@ -278,6 +278,7 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     //Time
     //float speed = 2.0;
     float sTime = max(0.0, sin(t));
+    float nTime = min(0.0, sin(t));
     
     //Texture
     sCoord px = vp.pixelCoord;
@@ -312,7 +313,8 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     	//distortionEffect(locOne, t * 0.5);
     }
     
-    vec3 lightCenter = vec3(3.0, 3.0, 0.0);
+    vec3 lightCenter = vec3(6.0, 0.0, 0.0) * (tan(t) * 0.5);
+    //lightCenter.x *= sin(t);
     vec3 lightColor = vec3(1.0, 0.0, 0.0);
     float lightIntensity = 100.0;
     float diffCo;
@@ -335,8 +337,6 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     attenuation(atten, dist, lightIntensity);
         
     diffuseIntensity(diffInt, diffCo, atten);
-        
-    //lambertianColor(lambert, diffInt, vec3(1.0, 1.0, 1.0), lightColor);
     
     
     //color4 colorZero = texture(iChannel0, locZero + vec2(t, 0.0) * 0.5); //Color
@@ -354,13 +354,13 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     color4 colorOne = texture(iChannel1, locOne); //Color
     color4 colorTwo = texture(iChannel2, cubeloc); //Color
     
-    //lambertianColor(colorZero.xyz, diffInt, vec3(1.0, 1.0, 1.0), lightColor);
+    lambertianColor(lambert, diffInt, colorZero.xyz, lightColor);
     
     //return crossFade;
     //return colorZero;
     //return colorOne;
-    return colorTwo;
-    //return vec4(lambert, 1.0);
+    //return colorTwo;
+    return vec4(lambert, 1.0);
     
     
     
