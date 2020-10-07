@@ -175,8 +175,8 @@ void crossFadeEffect(out vec4 blend, in vec4 sampleOne, in vec4 sampleTwo, in fl
 
 void distortionEffect(out sCoord distort, in float t)
 {
-	distort.x = cos(distort.x) + 0.1 * t;
-    distort.y = sin(distort.y);
+	distort.x = distort.y * cos(distort.x) - 1000.0;
+    distort.y = distort.x * sin(distort.y);
 }
 
 sCoord wave(in sCoord originalLocation)
@@ -228,7 +228,8 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     locOne.y = ratioOney * locOne.y; //zoom + shift
     locOne.x = ratioOnex * locOne.x; //zoom + shift
     
-    float radius = 1.0;
+    float radius = 1.0; //0.5;
+    //vec2 center = vec2((vp.ndc.x), (vp.ndc.y));
     vec2 center = vec2(0.0, 0.0);
     vec2 dp;
     dp.xy = ray.direction.xy - center.xy;
@@ -247,7 +248,8 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     
     crossFadeEffect(crossFade, colorZero, colorOne, sTime);
     
-    return crossFade;
+    //return crossFade;
+    return colorZero;
     //return texture(iChannel0, locZero).rrrr; //grayscale
     
     //tetsing/reference for shading
