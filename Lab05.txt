@@ -272,78 +272,86 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     //Texture set up to fit on screen depending on screen resolution and viewport position
     sCoord px = vp.pixelCoord;
     
-    sDCoord resZero = iChannelResolution[0].xy;
-    sDCoord resOne = iChannelResolution[1].xy;
+    sDCoord resZero = iChannelResolution[0].xy; //Get resolution of Channel in zero position
+    sDCoord resOne = iChannelResolution[1].xy; //Get resolution of Channel in one position
     
+    //Creates a ratio against the screen inverse resolution to fit texture 0 on y-grid
     sScalar ratioZeroy = resZero.y * vp.resolutionInv.y;
+    //Creates a ratio against the screen inverse resolution to fit texture 0 on x-grid
     sScalar ratioZerox = resZero.x * vp.resolutionInv.x;
+    //Creates a ratio against the screen inverse resolution to fit texture 1 on y-grid
     sScalar ratioOney = resOne.y * vp.resolutionInv.y;
+    //Creates a ratio against the screen inverse resolution to fit texture 1 on x-grid
     sScalar ratioOnex = resOne.x * vp.resolutionInv.x;
     
     sCoord locZero = px / resZero; // relative to texture (input)
     sCoord locOne = px / resOne; // relative to texture (input)
     
-    locZero.y = ratioZeroy * locZero.y; //zoom + shift
-    locZero.x = ratioZerox * locZero.x; //zoom + shift
-    locOne.y = ratioOney * locOne.y; //zoom + shift
-    locOne.x = ratioOnex * locOne.x; //zoom + shift
+    locZero.y = ratioZeroy * locZero.y; //zoom texture 0 on y-axis to fit screen ratio
+    locZero.x = ratioZerox * locZero.x; //zoom texture 0 on x-axis to fit screen ratio
+    locOne.y = ratioOney * locOne.y; //zoom texture 1 on y-axis to fit screen ratio
+    locOne.x = ratioOnex * locOne.x; //zoom texture 1 on x-axis to fit screen ratio
     
     //Cubemap rotation
-    vec3 cubeloc = ray.direction.xyz;
+    vec3 cubeloc = ray.direction.xyz; //Use calculated ray direction to get current pixel
     //cubeloc.z = cubeloc.z * min(0.0, sin(t));
-    mat3 rotate = rotationMatrix(t);
-    cubeloc = rotate * cubeloc;
+    mat3 rotate = rotationMatrix(t); //Create a rotation matrix
+    cubeloc = rotate * cubeloc; //Rotate cubemap by the rotation matrix
     
     //Circle to distort inside of
     //Circle creation referenced to: https://www.shadertoy.com/view/WdtcDN
     //Nathan Boisvert 2020
-    float radius = 1.0; //0.5;
-    //vec2 center = vec2((vp.ndc.x), (vp.ndc.y));
-    vec2 center = vec2(0.0, 0.0);
-    vec2 dp;
-    dp.xy = ray.direction.xy - center.xy;
-    float lSq = dot(dp.xy, dp.xy);
-    float rSq = radius * radius;
-    if(lSq <= rSq)
+    float radius = 1.0; //Radius for circle 
+    //vec2 center = vec2((vp.ndc.x), (vp.ndc.y)); //Circle center set by viewport
+    vec2 center = vec2(0.0, 0.0); //Circle center in center of screen
+    vec2 dp; //Display port
+    dp = ray.direction.xy - center.xy; //Fit display port to circle center against ray direction
+    float lSq = lengthSq(dp); //Get the length squared of the display port
+    float rSq = radius * radius; //Get the radius squared
+    if(lSq <= rSq) //Check if current pixel is inside circle bounds
     {
         //Apply distortion effect inside of circle
-    	//distortionEffect(locZero, t * 0.5);
+    	distortionEffect(locZero, t * 0.5);
     	//distortionEffect(locOne, t * 0.5);
         //distortionEffect(cubeloc.xy, t * 0.5);
     }
     
     //Set up for Lambertian Reflectance
+    //Center of light on screen, moves over time (either by tangent of time, sine of time, or both)
     vec3 lightCenter = vec3(6.0, 0.0, 0.0) * (tan(t) * 0.5);
     //lightCenter.x *= sin(t);
-    vec3 lightColor = vec3(1.0, 0.0, 0.0);
-    float lightIntensity = 100.0;
+    vec3 lightColor = vec3(1.0, 0.0, 0.0); //Color of light
+    float lightIntensity = 100.0; //Intensity of light
     float diffCo;
     float atten;
     float diffInt;
     vec3 lambert;
     
-    vec3 position = vp.viewportPoint.xyz;
+    vec3 position = vp.viewportPoint.xyz; //Surface position given by viewport
     
+    //Surface normal as a unit vector of position
     vec3 normal = (vec3(position.xy, 1.0)) 
         * inversesqrt(lengthSq(vec3(position.xy, 1.0)));
     
+    //Light Vector as a unit vector between the surface position and the light's center point
     vec3 lightVector = (lightCenter - position) 
        	* inversesqrt(lengthSq((lightCenter - position)));
     
+    //Distance from light's center point to surface position
     float dist = distance(lightCenter, position);
     
     //Lambertian Reflectance
-    diffuseCoefficient(diffCo, normal, lightVector);
+    diffuseCoefficient(diffCo, normal, lightVector); //Get diffuse coefficient
         
-    attenuation(atten, dist, lightIntensity);
+    attenuation(atten, dist, lightIntensity); //Attenuate the light intensity
         
-    diffuseIntensity(diffInt, diffCo, atten);
+    diffuseIntensity(diffInt, diffCo, atten); //Get the diffuse intensity, set by coefficient and attenuation
     
     //Create moving texture to be used as colors and give them a cross fade effect
-    //color4 colorZero = texture(iChannel0, locZero + vec2(t, 0.0) * 0.5); //Color
-    //color4 colorOne = texture(iChannel1, locOne + vec2(t, 0.0) * 0.5); //Color
-    //color4 crossFade;
-    //crossFadeEffect(crossFade, colorZero, colorOne, t);
+    //color4 colorZero = texture(iChannel0, locZero + vec2(t, 0.0) * 0.5); //Color moves with time
+    //color4 colorOne = texture(iChannel1, locOne + vec2(t, 0.0) * 0.5); //Color moves with time
+    //color4 crossFade; //Cross Fade color
+    //crossFadeEffect(crossFade, colorZero, colorOne, t); //Give Cross Fade Effect
     //return crossFade;
     
     //Create texture to be used as colors
@@ -351,12 +359,13 @@ color4 calcColor(in sViewport vp, in sRay ray, in float t)
     color4 colorOne = texture(iChannel1, locOne); //Color
     color4 colorTwo = texture(iChannel2, cubeloc); //Color
     
+    //Create Lambertian Reflectance on the texture
     lambertianColor(lambert, diffInt, colorZero.xyz, lightColor);
     
-    //return colorZero;
+    return colorZero;
     //return colorOne;
     //return colorTwo;
-    return vec4(lambert, 1.0);
+    //return vec4(lambert, 1.0);
     
 }
 
