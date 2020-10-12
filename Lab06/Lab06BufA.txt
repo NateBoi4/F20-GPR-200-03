@@ -4,17 +4,37 @@
 //------------------------------------------------------------
 // RENDERING FUNCTIONS
 
+mat3 rotationMatrix(in float angle)
+{
+    float s = sin(angle);
+    float c = cos(angle);
+    
+    return mat3(c, 0.0, s,
+                0.0, 1.0, 0.0,
+                -s, 0.0, c);
+}
+
 // calcColor: calculate the color of current pixel
 //	  vp:  input viewport info
 //	  ray: input ray info
-color4 calcColor(in sViewport vp, in sRay ray)
+color4 calcColor(in sViewport vp, in sRay ray, in float t)
 {
+    //Cubemap rotation
+    vec3 cubeloc = ray.direction.xyz; //Use calculated ray direction to get current pixel
+    //cubeloc.z = cubeloc.z * min(0.0, sin(t));
+    mat3 rotate = rotationMatrix(t); //Create a rotation matrix
+    cubeloc = rotate * cubeloc; //Rotate cubemap by the rotation matrix
+    
+    color4 rotateCubeMap = texture(iChannel0, cubeloc); //Color
+    
+    return rotateCubeMap;
+    
     // test inputs
     //return color4(ray.direction.xyz == vp.viewportPoint.xyz); // pass
     //return color4(lengthSq(vp.viewportPoint.xy) >= 0.25); // pass
     //return color4(vp.uv, 0.0, 0.0);
     //return color4(vp.ndc, 0.0, 0.0);
-    return asPoint(sBasis(vp.viewportPoint.xy, -vp.viewportPoint.z));
+    //return asPoint(sBasis(vp.viewportPoint.xy, -vp.viewportPoint.z));
 }
 
 
@@ -39,5 +59,5 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     // render
     initViewport(vp, viewportHeight, focalLength, fragCoord, iResolution.xy);
     initRayPersp(ray, eyePosition, vp.viewportPoint.xyz);
-    fragColor += calcColor(vp, ray);
+    fragColor += calcColor(vp, ray, iTime);
 }
