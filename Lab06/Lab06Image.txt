@@ -16,6 +16,7 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     // TESTING
     // set iChannel0 to 'Misc/Buffer A' and fetch sample
     //fragColor = texture(iChannel0, uv);
+    //fragColor = texture(iChannel2, uv);
     
     color4 original = texture(iChannel0, uv);
     
@@ -25,8 +26,17 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
     //fragColor = original + blurred;
     
     //Mix
-    fragColor = mix(original, blurred, blurred);
+    //fragColor = mix(blurred, original, original);
     
     //Scene
     //fragColor = (1.0 - (1.0 - original) * (1.0 - blurred));
+    
+    //Color Dodge
+    //fragColor = original / (1.0 - blurred);
+    
+    //Phoenix
+    //fragColor = (min(original, blurred) - max(original, blurred) + vec4(1.0));
+    
+    //Exclusion
+    //fragColor = original + blurred - (2.0 * original * blurred);
 }
