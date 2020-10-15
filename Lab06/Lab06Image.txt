@@ -1,4 +1,5 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+// Code Modified by Nathan Boisvert
 //  -> IMAGE TAB (final)
 
 //------------------------------------------------------------
@@ -9,33 +10,30 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-    // setup
-    // test UV for input image
+    // UV for input image
     sCoord uv = fragCoord / iChannelResolution[0].xy;
     
-    // TESTING
-    // set iChannel0 to 'Misc/Buffer A' and fetch sample
     //fragColor = texture(iChannel0, uv);
     //fragColor = texture(iChannel2, uv);
     
-    color4 original = texture(iChannel0, uv);
+    color4 original = texture(iChannel0, uv); //Original Rotating Cubemap texture
     
-    color4 blurred = texture(iChannel2, uv);
+    color4 blurred = texture(iChannel2, uv); //Blurred and Bright Passed Cubemap texture
     
+    //Blend Methods
     //Add
-    //fragColor = original + blurred;
+    fragColor = original + blurred;
     
     //Mix
     //fragColor = mix(blurred, original, original);
     
-    //Scene
+    //Reference: http://www.simplefilter.de/en/basics/mixmods.html
+    //for screen, color dodge, and exclusion
+    //Screen
     //fragColor = (1.0 - (1.0 - original) * (1.0 - blurred));
     
     //Color Dodge
     //fragColor = original / (1.0 - blurred);
-    
-    //Phoenix
-    //fragColor = (min(original, blurred) - max(original, blurred) + vec4(1.0));
     
     //Exclusion
     //fragColor = original + blurred - (2.0 * original * blurred);
