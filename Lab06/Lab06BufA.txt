@@ -1,9 +1,14 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+// Modified by Nathan Boisvert
 //  -> BUFFER A TAB (scene)
 
 //------------------------------------------------------------
 // RENDERING FUNCTIONS
 
+//Rotation matrix referenced from: https://www.shadertoy.com/view/wddczs (myself)
+//Rotates Cubemap texture about its y-axis
+//Function takes in time as its angle to get constant rotation
+//Angle is put into sine and cosine functions to get transformation
 mat3 rotationMatrix(in float angle)
 {
     float s = sin(angle);
@@ -19,22 +24,15 @@ mat3 rotationMatrix(in float angle)
 //	  ray: input ray info
 color4 calcColor(in sViewport vp, in sRay ray, in float t)
 {
+    //Same reference as above for rotation function: https://www.shadertoy.com/view/wddczs (myself)
     //Cubemap rotation
     vec3 cubeloc = ray.direction.xyz; //Use calculated ray direction to get current pixel
-    //cubeloc.z = cubeloc.z * min(0.0, sin(t));
     mat3 rotate = rotationMatrix(t); //Create a rotation matrix
     cubeloc = rotate * cubeloc; //Rotate cubemap by the rotation matrix
     
     color4 rotateCubeMap = texture(iChannel0, cubeloc); //Color
     
     return rotateCubeMap;
-    
-    // test inputs
-    //return color4(ray.direction.xyz == vp.viewportPoint.xyz); // pass
-    //return color4(lengthSq(vp.viewportPoint.xy) >= 0.25); // pass
-    //return color4(vp.uv, 0.0, 0.0);
-    //return color4(vp.ndc, 0.0, 0.0);
-    //return asPoint(sBasis(vp.viewportPoint.xy, -vp.viewportPoint.z));
 }
 
 

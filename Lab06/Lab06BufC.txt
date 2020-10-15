@@ -1,11 +1,21 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+// Code Modified by Nathan Boisvert
 //  -> IMAGE TAB (final)
 
 //------------------------------------------------------------
 // SHADERTOY MAIN
 
-#define row vec4
-
+/*
+This function essentially acts as the Gaussian Blur
+It takes in the three, technically five, weights that the pixels will be multiplied with
+It also takes in the "y" location in the 5x5 kernel grid in order to properly locate the pixel being modified.
+Finally, it takes in the inverse of the channel resolution, only in the xy plane, for the sampled texture
+as well as fragCoord (see below)
+This function performs the Gaussian Blur by taking the inputs and assigning them to their corresponding
+pixel that is to be modified and it does this by setting up the convolution operation as a linear equation.
+This function only performs the Blur on a single row of pixels in the neighborhood and must be performed
+multiple times and then combined in order to get the effect for the entire neighborhood.
+*/
 row createRow(in float a, in float b, in float c, in float y, in sCoord resInv, in sCoord fragCoord) 
 {
     row currentRow = (a * texture(iChannel0, (fragCoord + vec2(2.0, y)) * resInv) 
@@ -20,31 +30,37 @@ row createRow(in float a, in float b, in float c, in float y, in sCoord resInv, 
 //    fragColor: output final color for current pixel
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
-{
-    // setup
-    // test UV for input image
-    sCoord uv = fragCoord / iChannelResolution[0].xy;
-    
-    // TESTING
-    // set iChannel0 to 'Misc/Buffer A' and fetch sample
-    //fragColor = texture(iChannel0, uv);
-    
+{   
+    //Inverse of texture resolution in the xy plane
     sCoord resInv = 1.0 / iChannelResolution[0].xy;
     
+    //Reciprocal of weight of sums of a 3x3 kernel.
     //float fraction = 1.0 / 16.0;
     
+    //Reciprocal of weight of sums of a 5x5 kernel.
     float fraction_two = 1.0 / 256.0;
     
-    row firstRow = createRow(1.0, 4.0, 6.0, 2.0, resInv, fragCoord);
+    //Array of the weights that are in the 5x5 kernel
+    float weights[6] = float[6](1.0, 4.0, 6.0, 16.0, 24.0, 36.0);
     
-    row secondRow = createRow(4.0, 16.0, 24.0, 1.0, resInv, fragCoord);
+    //First row of a 5x5 Kernel with weights of 1 4 6 4 1 located 2.0 pixels above current pixel
+    row firstRow = createRow(weights[0], weights[1], weights[2], 2.0, resInv, fragCoord);
     
-    row thirdRow = createRow(6.0, 24.0, 36.0, 0.0, resInv, fragCoord);
+    //Second row of a 5x5 Kernel with weights of 4 16 24 16 4 located 1.0 pixels above current pixel
+    row secondRow = createRow(weights[1], weights[3], weights[4], 1.0, resInv, fragCoord);
     
-    row fourthRow = createRow(4.0, 16.0, 24.0, -1.0, resInv, fragCoord);
+    //Third row of a 5x5 Kernel with weights of 6 24 36 24 6 located on same y-axis as current pixel
+    //Pixel that is weighted by 36 IS the current pixel.
+    row thirdRow = createRow(weights[2], weights[4], weights[5], 0.0, resInv, fragCoord);
     
-    row fifthRow = createRow(1.0, 4.0, 6.0, -2.0, resInv, fragCoord);
+    //Fourth row of a 5x5 Kernel with weights of 4 16 24 16 4 located 1.0 pixels below current pixel
+    row fourthRow = createRow(weights[1], weights[3], weights[4], -1.0, resInv, fragCoord);
     
+    //First row of a 5x5 Kernel with weights of 1 4 6 4 1 located 2.0 pixels below current pixel
+    row fifthRow = createRow(weights[0], weights[1], weights[2], -2.0, resInv, fragCoord);
+    
+    //TEST
+    //Improper, not optimized implementation of Gaussian Blur on a 3x3 kernel
     /*
     fragColor = fraction * (1.0 * texture(iChannel0, (fragCoord + vec2(1.0, 1.0)) / iChannelResolution[0].xy) 
                             + 2.0 * texture(iChannel0, (fragCoord + vec2(0.0, 1.0)) / iChannelResolution[0].xy) 
@@ -57,6 +73,6 @@ void mainImage(out color4 fragColor, in sCoord fragCoord)
                             + 1.0 * texture(iChannel0, (fragCoord + vec2(-1.0, -1.0)) / iChannelResolution[0].xy));
     */
     
+    //Combine all resulting blurred rows and multiply against the reciprocal of the sum of weights
     fragColor = fraction_two * (firstRow + secondRow + thirdRow + fourthRow + fifthRow);
-	
 }

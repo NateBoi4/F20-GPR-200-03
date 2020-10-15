@@ -1,4 +1,5 @@
 // GLSL STARTER CODE BY DANIEL S. BUCKSTEIN
+// Modified by Nathan Boisvert
 //  -> IMAGE TAB (final)
 
 //------------------------------------------------------------
@@ -9,18 +10,19 @@
 //    fragCoord: input location of current pixel in image (in pixels)
 void mainImage(out color4 fragColor, in sCoord fragCoord)
 {
-    // setup
-    // test UV for input image
+    // UV for input image
     sCoord uv = fragCoord / iChannelResolution[0].xy;
     
-    // TESTING
-    // set iChannel0 to 'Misc/Buffer A' and fetch sample
-    fragColor = texture(iChannel0, uv);
+    fragColor = texture(iChannel0, uv); //Input texture from Buffer A
     
     //Reference: https://en.wikipedia.org/wiki/Relative_luminance
+    //Luminance float calculated from RGB components of sampled texture. 
+    //A reflection of the luminosity function: https://en.wikipedia.org/wiki/Luminosity_function
     float luminance = (fragColor.r * 0.2126) + (fragColor.g * 0.7152) + (fragColor.b * 0.0722);
-    //vec4 luminanceVec = vec4(0.2126, 0.7152, 0.0722, 1.0);
     
+    //Uses luminance to perform a bright pass which emphasizes light and minimizes darkness
+    //From places with great light intensity.
+    //Luminance multiplication is performed multiple times to strengthen effect.
     fragColor.rgb *= luminance;
     fragColor.rgb *= luminance;
     fragColor.rgb *= luminance;
