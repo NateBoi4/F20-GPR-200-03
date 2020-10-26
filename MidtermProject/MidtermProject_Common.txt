@@ -38,6 +38,14 @@ struct sTorus
     vec4 center;
 };
     
+struct sCapsule
+{
+    vec3 top;
+    vec3 bottom;
+    float radius;
+    vec4 center;
+};
+    
 struct sColoredObj
 {
     vec4 color;
@@ -73,6 +81,12 @@ struct sTorusObj
 {
     sColoredObj Obj;
     sTorus torus;
+};
+    
+struct sCapsuleObj
+{
+    sColoredObj Obj;
+    sCapsule capsule;
 };
 
 struct sPlaneObj
@@ -224,6 +238,23 @@ sTorusObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color, int in
     torus.Obj.dist = length(innerDistance) - toroid.y;
     return torus;
 }
+
+sCapsuleObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center, 
+                float radius, vec4 color, int index )
+{
+    sCapsuleObj capsule;
+    capsule.capsule.top = top;
+    capsule.capsule.bottom = bottom;
+    capsule.capsule.center = center;
+    capsule.capsule.radius = radius;
+    capsule.Obj.color = color;
+    capsule.Obj.index = index;
+    vec3 topFromPosition = (position - center.xyz) - top, topFromBottom = bottom - top;
+    float height = clamp( dot(topFromPosition, topFromBottom)
+                         / dot(topFromBottom, topFromBottom), 0.0, 1.0 );
+    capsule.Obj.dist = length( topFromPosition - topFromBottom * height ) - radius;
+    return capsule;
+}
     
 float renderScene(vec3 position, out vec4 color)
 {
@@ -232,6 +263,7 @@ float renderScene(vec3 position, out vec4 color)
     sConeObj Cones[3];
     sCylinderObj Cylinders[3];
     sTorusObj Tori[3];
+    sCapsuleObj Capsules[3];
     int currentarray, currentindex;
     
     // create scene objects
@@ -248,6 +280,8 @@ float renderScene(vec3 position, out vec4 color)
     Cylinders[0] = initCylinder(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(0.0, 1.0, 5.6, 1.0),
                           0.2, vec4(0.5, 0.2, 0.7, 1.0), 0);
     Tori[0] = initTorus(position, vec2(0.3, 0.3), vec4(3.0, 1.0, 5.6, 1.0), vec4(0.2, 0.9, 0.8, 1.0), 0);
+    Capsules[0] = initCapsule(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(-3.0, 1.0, 5.6, 1.0), 
+                0.2, vec4(0.0, 1.0, 0.0, 1.0), 0);
     sPlaneObj planeDistance = initPlane(vec4(1.0),position);
 
     // use Logic to build the correct distance
@@ -256,6 +290,7 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJunion(d, Cones[0].Obj);
     d = OBJunion(d, Cylinders[0].Obj);
     d = OBJunion(d, Tori[0].Obj);
+    d = OBJunion(d, Capsules[0].Obj);
     d = OBJunion(d, Spheres[2].Obj);
     d = OBJunion(d, planeDistance.Obj);
     
