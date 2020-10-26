@@ -1,31 +1,4 @@
-/*
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
-{
-    vec2 uv = fragCoord / iResolution.xy;
-
-    vec3 col = vec3(0.0);
-    
-    vec3 rayOrigin = vec3(0.0, 1.0, 0.0);
-    vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0));
-
-    float d = rayMarch(rayOrigin, rayDirection);
-    
-    //d /= 6.0;
-    if(d < MAX_DIST){
-        fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        return;
-    }
-    
-    vec3 pos = rayOrigin + rayDirection * d;
-    
-    
-    //float diff = getLight(p);
-    col = vec3(d);
-    fragColor = vec4(col,1.0);
-}
-*/
-
-mat3 rotationMatrix(in float angle)
+/*mat3 rotationMatrix(in float angle)
 {
     float s = sin(angle);
     float c = cos(angle);
@@ -42,45 +15,35 @@ mat3 setCamera( in vec3 ro, in vec3 ta, float cr )
 	vec3 cu = normalize( cross(cw,cp) );
 	vec3 cv =          ( cross(cu,cw) );
     return mat3( cu, cv, cw );
-}
+}*/
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = (fragCoord - 0.5*iResolution.xy)/iResolution.y;
-    //vec2 uv = fragCoord / iResolution.xy;
-
-
-    vec3 col = vec3(0.0);
+    vec2 camuv = fragCoord / iResolution.xy; // used for sampling camera channels
     
-    vec3 rayOrigin = vec3(0.0, 1.0, 0.0);
+    vec3 rayOrigin = vec3(0.0, 1.0, 0.0) + texture(iChannel0,uv).xyz;
     vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0));
     
-    vec4 center = vec4(-0.5, 1.0, 6.0, 1.0);
-    float radius = 1.0;
-    
+    // output that will be given a color based on what object it hits
     vec4 color;
     
+    // distance from viewport to whatever the ray hits
     float dist = shortestDistanceToSurface(color, rayOrigin, rayDirection, MIN_DIST, MAX_DIST);
     
-    /*
-    if (dist > MAX_DIST - SURF_DIST) {
+    /*if (dist > MAX_DIST - SURF_DIST) {
         // Didn't hit anything
-        fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        fragColor = vec4(0.0);
 		return;
-    }
-	*/
+    }*/
+	
+    // point on object surface
+    vec3 point = rayOrigin + dist * rayDirection;
+    
+    color = calcLighting ( vec3(2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
+                    getNormal(point),  rayOrigin, point-rayOrigin,color)
+        + calcLighting ( vec3(-2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
+                    getNormal(point),  rayOrigin, point-rayOrigin,color);;
     
     fragColor = color;
-    
-
-    //float d = rayMarch(rayOrigin, rayDirection);
-    
-    //d /= 6.0;
-    
-    //vec3 p = rayOrigin + rayDirection * d;
-    
-    //float diff = getLight(p);
-    //col = vec3(d);
-    
-    //fragColor = vec4(col,1.0);
 }
