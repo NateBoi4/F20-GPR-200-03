@@ -1,50 +1,136 @@
-#define MAX_STEPS 100
-#define MAX_DIST 100.0
-#define SURF_DIST 0.01
+#define MAX_STEPS 150
+#define MAX_DIST 150.0
+#define SURF_DIST 0.0001
 #define MIN_DIST 0.0
 
-float planeDistance(vec3 p){
-    return p.y;
+struct sSphere
+{
+    float radius;
+    vec4 center;
+};
+    
+struct sBox
+{
+	vec3 dimensions;
+    vec4 center;
+};
+    
+struct sColoredObj
+{
+    vec4 color;
+    int index;
+    float dist;
+};
+        
+struct sSphereObj
+{
+	sColoredObj Obj;
+    sSphere sphere;
+};
+
+struct sBoxObj
+{
+    sColoredObj Obj;
+	sBox box;
+};
+
+struct sPlaneObj
+{
+    sColoredObj Obj;
+};
+
+// OBJintersect: Returns the intesection of two volumes
+//    distA: the first volume
+//    distA: the second volume
+sColoredObj OBJintersect(sColoredObj distA, sColoredObj distB) 
+{
+    //return max(distA, distB);
+    if (distA.dist > distB.dist)
+        return distA;
+    return distB;
+
 }
 
-float createSphere(vec4 center, float radius, vec3 p){
-    float sphereDistance = length(p - center.xyz) - radius;
-    
-    return sphereDistance;
+// OBJintersect: Returns the union of two volumes
+//    distA: the first volume
+//    distA: the second volume
+sColoredObj OBJunion(in sColoredObj distA, in sColoredObj distB) 
+{
+    //return min(distA, distB);
+    if (distA.dist > distB.dist)
+        return distB;
+    return distA;
+
 }
 
-float renderScene(vec3 position, out vec4 color){
-    float wheel = createSphere(vec4(-1.5, 0.0, 6.0, 1.0), 1.0, position);
-    float wheelTwo = createSphere(vec4(1.5, 0.0, 6.0, 1.0), 1.0, position);
-    float d = min(wheel, wheelTwo);
-    float planeDistance = planeDistance(position);
-    d = min(d, planeDistance);
-    color = vec4(0.0);
-    if(d == wheel){
-        color = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    else if(d == planeDistance){
-        color = vec4(1.0);
-    }
-    return d;
+// OBJintersect: Returns the difference of two volumes
+//    distA: the first volume
+//    distA: the second volume, which will be removed
+sColoredObj OBJdifference(in sColoredObj distA, in sColoredObj distB) 
+{
+    //return (distA.dist > -distB.dist) ? distA : distB; //WHY TF DOESNT ISNT THIS LEGAL
+    if (distA.dist > -1.0 * distB.dist)
+        return distA;
+    distB.dist = -1.0 * distB.dist;
+    return distB;
 }
 
-/*
-float rayMarch(vec3 rayOrigin, vec3 rayDirection) {
-    float distanceOrigin = 0.0;
-    
-    for (int i = 0; i < MAX_STEPS; i++) {
-        vec3 p = rayOrigin + rayDirection*distanceOrigin;
-        float ds = renderScene(p);
-        distanceOrigin += ds;
-        if(distanceOrigin > MAX_DIST || ds < SURF_DIST) break;
-    }
-    
-    return distanceOrigin;
+// createSphere: distance to a given sphere
+//    center: centerpoint of sphere
+//    radius: radius of sphere
+//    p:      sample point
+sSphereObj initSphere(vec4 center, float radius, 
+                      vec4 color, int index, vec3 p)
+{
+    sSphereObj sphere;
+    sphere.sphere.center = center;
+    sphere.sphere.radius = radius;
+    sphere.Obj.color = color;
+    sphere.Obj.index = index;
+    sphere.Obj.dist = length(p - center.xyz) - radius;
+    return sphere;
 }
-*/
+
+// planeDistance: distance to the plane y = 0
+//    p: sample point 
+sPlaneObj initPlane(vec4 color, vec3 p)
+{
+	sPlaneObj plane;
+    plane.Obj.color = color;
+    plane.Obj.index = 0;
+    plane.Obj.dist = p.y;
+    return plane;
+}
+    
+float renderScene(vec3 position, out vec4 color)
+{
+    sSphereObj Spheres[3];
+    sBoxObj Boxes[3];
+    int currentarray, currentindex;
+    
+    // create scene objects
+    Spheres[0] = initSphere(vec4(-1.5, 0.0, 6.0, 1.0), 1.0, 
+                  vec4(1.0, 0.0, 0.0, 1.0), 0, position);
+    Spheres[1] = initSphere(vec4(-1.0, 0.5, 5.5, 1.0),0.5,
+             vec4(1.0, 1.0, 0.0, 1.0), 1, position);
+    Spheres[2] = initSphere(vec4(1.5, 0.0, 6.0, 1.0), 1.0,
+    				vec4(1.0, 0.0, 1.0, 1.0),2,position);
+    sPlaneObj planeDistance = initPlane(vec4(1.0),position);
+
+    // use Logic to build the correct distance
+    sColoredObj d = OBJdifference(Spheres[0].Obj, Spheres[1].Obj);
+    d = OBJunion(d, Spheres[2].Obj);
+    d = OBJunion(d, planeDistance.Obj);
+    
+    //assign color
+	color = d.color;
+    
+    return d.dist;
+}
 
 float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection, float start, float end) {
+    //credit to https://www.shadertoy.com/view/4tcGDr
+    
     float depth = start;
     for (int i = 0; i < MAX_STEPS; i++) {
         float dist = renderScene(eye + depth * marchingDirection, color);
@@ -59,33 +145,56 @@ float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection
     return end;
 }
 
-/*
+
 vec3 getNormal(vec3 p){
-    float d = renderScene(p);
+    
+    vec4 color;//placeholder, not needed for this.
+    
+    
+    float d = renderScene(p,color);
     vec2 e = vec2(0.01, 0.0);
     
     vec3 n = d - vec3(
-    renderScene(p - e.xyy),
-    renderScene(p - e.yxy),
-    renderScene(p - e.yyx));
+    renderScene(p - e.xyy,color),
+    renderScene(p - e.yxy,color),
+    renderScene(p - e.yyx,color));
     
     return normalize(n);
 }
-*/
 
-/*
-float getLight(vec3 p) {
-    vec3 lightPos = vec3(0.0, 5.0, 6.0);
-    //lightPos.xz += vec2(sin(iTime), cos(iTime)*2.0);
-    vec3 light = normalize(lightPos - p);
-    vec3 n = getNormal(p);
-    
-    float diff = clamp(dot(n, light), 0.0, 1.0);
-    float d = rayMarch(p + n*SURF_DIST*2.0, light);
-    //if(d < length(lightPos - p)) diff *= 0.1;
-    if (d > MAX_DIST){  
-    	return diff;
-    }
-    return 1.0;
+// calcLighting: calculates Lambertian and Blinn-Phong reflectance, and returns part of the summation of the final color
+//    light: the current Point Light
+//    position:     point on the sphere that we are drawing
+//    normal:       normal vector from point
+//    rayOrigin:    input ray origin
+//	  viewVector:	vector from point to camera
+vec4 calcLighting (in vec3 lightpos, in vec4 lightcolor, float lightintense, in vec3 position,
+                   in vec3 normal, in vec3 rayOrigin, in vec3 viewVector, in vec4 Objectcolor)
+{
+    //Taken from Demetri's Lab 4
+    // LAMBERTIAN REFLECTANCE
+    vec3 lightVector = lightpos.xyz - position; // get vector of position to the light
+	float lightLength = length(lightVector); // get length of light vector
+    lightVector = lightVector / lightLength; // normalizes vector
+   
+    float diffuseCoefficient = max(0.0, dot(lightVector, normal)); // get coefficient
+   
+    float intensityRatio = lightLength/lightintense; // simplifying attenuation equation by doing this once
+    float attenuation = 1.0 / (1.0 + intensityRatio +
+                             (intensityRatio * intensityRatio)); // get attenuation
+    float Lambertian = diffuseCoefficient * attenuation; // final lambertian
+
+    // BLINN-PHONG REFLECTANCE
+   
+    float specular = max(0.0,dot(normal, normalize(viewVector + lightVector))); // get base specular coefficient
+    specular *= specular; // specularCoefficient^2
+    specular *= specular; // specularCoefficient^4
+    specular *= specular * specular * specular; // ^16
+    specular *= specular * specular * specular; // ^64
+    specular *= specular * specular * specular; // ^256 = a
+    specular *= 4.0; // Blinn coefficient
+   
+    //return (Lambertian * vec4(normal * 0.5 + 0.5, 1.0) + specular) * lightcolor;
+    return (Lambertian * Objectcolor + specular) * lightcolor;
+
 }
-*/
