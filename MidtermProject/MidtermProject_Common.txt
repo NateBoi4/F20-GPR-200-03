@@ -130,67 +130,31 @@ sPlaneObj initPlane(vec4 color, vec3 p)
     return plane;
 }
 
-sCylinderObj initCylinder(vec3 position, vec3 top, vec3 bottom, float radius,
-							vec4 color, int index)
+sCylinderObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
+                          float radius, vec4 color, int index)
 {
 	sCylinderObj cylinder;
 	cylinder.cylinder.top = top;
 	cylinder.cylinder.bottom = bottom;
+    cylinder.cylinder.center = center;
 	cylinder.cylinder.radius = radius;
 	cylinder.Obj.color = color;
 	cylinder.Obj.index = index;
     vec3  bottomToTop = bottom - top;
-    vec3  positionToTop = position - top;
-    float fullLength = dot(bottomToTop,bottomToTop);
-    float currentLength = dot(positionToTop,bottomToTop);
-    float x = length(positionToTop*fullLength-bottomToTop*currentLength) - radius*fullLength;
-    float y = abs(currentLength-fullLength*0.5)-fullLength*0.5;
-    float x2 = x*x;
-    float y2 = y*y*fullLength;
+    vec3  positionToTop = (position - center.xyz) - top;
+    float fullLength = dot(bottomToTop, bottomToTop);
+    float currentLength = dot(positionToTop, bottomToTop);
+    float x = length(positionToTop * fullLength - bottomToTop * currentLength) - radius * fullLength;
+    float y = abs(currentLength - fullLength * 0.5) - fullLength * 0.5;
+    float x2 = x * x;
+    float y2 = y * y * fullLength;
     
-    float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
+    float d = (max(x, y) < 0.0) ? -min(x2, y2) : (((x > 0.0) ? x2 : 0.0) + ((y > 0.0) ? y2 : 0.0));
     
-    cylinder.Obj.dist = sign(d)*sqrt(abs(d))/fullLength;
+    cylinder.Obj.dist = sign(d) * sqrt(abs(d)) / fullLength;
 	return cylinder;
 }
 
-<<<<<<< HEAD
-float createCylinder(vec3 position, vec2 height){
-    vec2 d = abs(vec2(length(position.xz), position.y)) - height;
-    return min(max(d.x,d.y),0.0) + length(max(d,0.0));
-}
-
-float createCone( in vec3 position, in vec2 center, float height )
-{
-    vec2 q = height*vec2(center.x,-center.y)/center.y;
-    vec2 w = vec2( length(position.xz), position.y );
-    
-	vec2 a = w - q*clamp( dot(w,q)/dot(q,q), 0.0, 1.0 );
-    vec2 b = w - q*vec2( clamp( w.x/q.x, 0.0, 1.0 ), 1.0 );
-    float k = sign( q.y );
-    float d = min(dot( a, a ),dot(b, b));
-    float s = max( k*(w.x*q.y-w.y*q.x),k*(w.y-q.y)  );
-	return sqrt(d)*sign(s);
-}
-
-float renderScene(vec3 position, out vec4 color){
-    float wheel = createSphere(vec4(-1.5, 0.5, 6.0, 1.0), 0.5, position);
-    float wheelTwo = createSphere(vec4(1.5, 0.5, 6.0, 1.0), 0.5, position);
-    //float cone = createCone(vec3( 0.1, 0.1, 0.1), vec2(0.1, 0.1), 0.9);
-    //float cylinder = createCylinder(position - vec3(1.0, 0.25, -2.0), vec2(0.15, 0.25));
-    float d = min(wheel, wheelTwo);
-    float planeDistance = planeDistance(position);
-    d = min(d, planeDistance);
-    //d = min(d, cone);
-    color = vec4(0.0);
-    if(d == wheel){
-        color = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-    else if(d == planeDistance){
-        color = vec4(1.0);
-    }
-    return d;
-=======
 sConeObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float topRadius,
 				float bottomRadius, vec4 color, int index)
 {
@@ -223,7 +187,6 @@ sConeObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float topRa
     cone.Obj.dist = s * sqrt( min(topx * topx + topy * topy * bottomFromTop,
                        bottomx * bottomx + bottomy * bottomy * bottomFromTop) );
 	return cone;
->>>>>>> testing
 }
 
 sBoxObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color, int index )
@@ -243,6 +206,7 @@ float renderScene(vec3 position, out vec4 color)
     sSphereObj Spheres[3];
     sBoxObj Boxes[3];
     sConeObj Cones[3];
+    sCylinderObj Cylinders[3];
     int currentarray, currentindex;
     
     // create scene objects
@@ -256,12 +220,15 @@ float renderScene(vec3 position, out vec4 color)
                        vec4(1.0, 1.0, 0.0, 1.0), 0);
     Cones[0] = initCone(position, vec3(0.0,0.0,0.0), vec3(0.0,1.0,-0.1), vec4(0.0, 3.0, 6.6, 1.0),
                         0.7, 0.1, vec4(0.0, 0.5, 0.5, 1.0), 0);
+    Cylinders[0] = initCylinder(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(0.0, 1.0, 5.6, 1.0),
+                          0.2, vec4(0.5, 0.2, 0.7, 1.0), 0);
     sPlaneObj planeDistance = initPlane(vec4(1.0),position);
 
     // use Logic to build the correct distance
     sColoredObj d = OBJdifference(Spheres[0].Obj, Spheres[1].Obj);
     d = OBJunion(d, Boxes[0].Obj);
     d = OBJunion(d, Cones[0].Obj);
+    d = OBJunion(d, Cylinders[0].Obj);
     d = OBJunion(d, Spheres[2].Obj);
     d = OBJunion(d, planeDistance.Obj);
     
