@@ -1,0 +1,23 @@
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    vec2 invReso = 1.0 / iResolution.xy;	
+    vec2 uv = fragCoord * invReso;
+
+    vec4 mouse = texture(iChannel1,uv);
+    vec2 mousecurrent = mouse.xy;
+    vec2 mouseclick = mouse.zw;
+    
+    if (iMouse.z >= 0.0)
+    {
+        vec2 newmouse = iMouse.xy * invReso;
+        vec2 newclick = iMouse.zw * invReso;
+        
+        vec2 mousefromclick = (newmouse - 0.5) - (newclick - 0.5);
+        vec2 radian = mouseclick - mousefromclick;
+		fragColor = vec4(radian, mouseclick);
+    }
+    else
+    {
+        fragColor = vec4(mousecurrent, mousecurrent);
+    }
+}
