@@ -46,6 +46,12 @@ struct sCapsule
     vec4 center;
 };
     
+struct sEllipsoid
+{
+    vec3 plane;
+    vec4 center;
+};
+    
 struct sColoredObj
 {
     vec4 color;
@@ -87,6 +93,12 @@ struct sCapsuleObj
 {
     sColoredObj Obj;
     sCapsule capsule;
+};
+    
+struct sEllipsoidObj
+{
+    sColoredObj Obj;
+    sEllipsoid ellipsoid;
 };
 
 struct sPlaneObj
@@ -255,6 +267,19 @@ sCapsuleObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
     capsule.Obj.dist = length( topFromPosition - topFromBottom * height ) - radius;
     return capsule;
 }
+
+sEllipsoidObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color, int index )
+{
+    sEllipsoidObj ellipsoid;
+    ellipsoid.ellipsoid.plane = plane;
+    ellipsoid.ellipsoid.center = center;
+    ellipsoid.Obj.color = color;
+    ellipsoid.Obj.index = index;
+    float section0 = length((position - center.xyz) / plane);
+    float section1 = length((position - center.xyz) / (plane * plane));
+    ellipsoid.Obj.dist = section0 * (section0 - 1.0) / section1;
+    return ellipsoid;
+}
     
 float renderScene(vec3 position, out vec4 color)
 {
@@ -264,6 +289,7 @@ float renderScene(vec3 position, out vec4 color)
     sCylinderObj Cylinders[3];
     sTorusObj Tori[3];
     sCapsuleObj Capsules[3];
+    sEllipsoidObj Ellipsoids[3];
     int currentarray, currentindex;
     
     // create scene objects
@@ -282,6 +308,8 @@ float renderScene(vec3 position, out vec4 color)
     Tori[0] = initTorus(position, vec2(0.3, 0.3), vec4(3.0, 1.0, 5.6, 1.0), vec4(0.2, 0.9, 0.8, 1.0), 0);
     Capsules[0] = initCapsule(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(-3.0, 1.0, 5.6, 1.0), 
                 0.2, vec4(0.0, 1.0, 0.0, 1.0), 0);
+    Ellipsoids[0] = initEllipsoid(position, vec3(0.2, 0.3, 0.4), vec4(-3.0, 3.0, 5.6, 1.0), 
+                                  vec4(0.0, 0.0, 1.0, 1.0), 0);
     sPlaneObj planeDistance = initPlane(vec4(1.0),position);
 
     // use Logic to build the correct distance
@@ -291,6 +319,7 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJunion(d, Cylinders[0].Obj);
     d = OBJunion(d, Tori[0].Obj);
     d = OBJunion(d, Capsules[0].Obj);
+    d = OBJunion(d, Ellipsoids[0].Obj);
     d = OBJunion(d, Spheres[2].Obj);
     d = OBJunion(d, planeDistance.Obj);
     
