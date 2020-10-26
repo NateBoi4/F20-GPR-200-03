@@ -9,6 +9,23 @@ struct sSphere
     vec4 center;
 };
     
+struct sCone
+{
+    float topRadius;
+    float bottomRadius;
+    vec3 top;
+    vec3 bottom;
+    vec4 center;
+};
+
+struct sCylinder
+{
+	float radius;
+	vec3 top;
+	vec3 bottom;
+    vec4 center;
+};
+
 struct sBox
 {
 	vec3 dimensions;
@@ -26,6 +43,18 @@ struct sSphereObj
 {
 	sColoredObj Obj;
     sSphere sphere;
+};
+
+struct sConeObj
+{
+	sColoredObj Obj;
+	sCone cone;
+};
+
+struct sCylinderObj
+{
+	sColoredObj Obj;
+	sCylinder cylinder;
 };
 
 struct sBoxObj
@@ -48,7 +77,6 @@ sColoredObj OBJintersect(sColoredObj distA, sColoredObj distB)
     if (distA.dist > distB.dist)
         return distA;
     return distB;
-
 }
 
 // OBJintersect: Returns the union of two volumes
@@ -101,11 +129,82 @@ sPlaneObj initPlane(vec4 color, vec3 p)
     plane.Obj.dist = p.y;
     return plane;
 }
+
+sCylinderObj initCylinder(vec3 position, vec3 top, vec3 bottom, float radius,
+							vec4 color, int index)
+{
+	sCylinderObj cylinder;
+	cylinder.cylinder.top = top;
+	cylinder.cylinder.bottom = bottom;
+	cylinder.cylinder.radius = radius;
+	cylinder.Obj.color = color;
+	cylinder.Obj.index = index;
+    vec3  bottomToTop = bottom - top;
+    vec3  positionToTop = position - top;
+    float fullLength = dot(bottomToTop,bottomToTop);
+    float currentLength = dot(positionToTop,bottomToTop);
+    float x = length(positionToTop*fullLength-bottomToTop*currentLength) - radius*fullLength;
+    float y = abs(currentLength-fullLength*0.5)-fullLength*0.5;
+    float x2 = x*x;
+    float y2 = y*y*fullLength;
+    
+    float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
+    
+    cylinder.Obj.dist = sign(d)*sqrt(abs(d))/fullLength;
+	return cylinder;
+}
+
+sConeObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float topRadius,
+				float bottomRadius, vec4 color, int index)
+{
+	sConeObj cone;
+	cone.cone.top = top;
+	cone.cone.bottom = bottom;
+    cone.cone.center = center;
+	cone.cone.topRadius = topRadius;
+	cone.cone.bottomRadius = bottomRadius;
+	cone.Obj.color = color;
+	cone.Obj.index = index;
+    float middleRadius  = bottomRadius - topRadius;
+    float bottomFromTop = dot(bottom - top, bottom - top);
+    float positionFromTop = dot((position - center.xyz) - top, (position - center.xyz) - top);
+    float positionIntersect = dot((position - center.xyz) - top, bottom - top) / bottomFromTop;
+
+    float x = sqrt( positionFromTop - positionIntersect * positionIntersect * bottomFromTop );
+
+    float topx = max(0.0, x - ((positionIntersect < 0.5) ? topRadius : bottomRadius));
+    float topy = abs(positionIntersect - 0.5) - 0.5;
+
+    float k = middleRadius * middleRadius + bottomFromTop;
+    float f = clamp( (middleRadius * (x - topRadius) + positionIntersect * bottomFromTop) / k, 0.0, 1.0 );
+
+    float bottomx = x - topRadius - f * middleRadius;
+    float bottomy = positionIntersect - f;
+    
+    float s = (bottomx < 0.0 && topy < 0.0) ? -1.0 : 1.0;
+    
+    cone.Obj.dist = s * sqrt( min(topx * topx + topy * topy * bottomFromTop,
+                       bottomx * bottomx + bottomy * bottomy * bottomFromTop) );
+	return cone;
+}
+
+sBoxObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color, int index )
+{
+	sBoxObj box;
+	box.box.dimensions = dimensions;
+    box.box.center = center;
+	box.Obj.color = color;
+	box.Obj.index = index;
+	vec3 q = abs(position - center.xyz) - dimensions;
+	box.Obj.dist = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+	return box;
+}
     
 float renderScene(vec3 position, out vec4 color)
 {
     sSphereObj Spheres[3];
     sBoxObj Boxes[3];
+    sConeObj Cones[3];
     int currentarray, currentindex;
     
     // create scene objects
@@ -115,10 +214,16 @@ float renderScene(vec3 position, out vec4 color)
              vec4(1.0, 1.0, 0.0, 1.0), 1, position);
     Spheres[2] = initSphere(vec4(1.5, 0.0, 6.0, 1.0), 1.0,
     				vec4(1.0, 0.0, 1.0, 1.0),2,position);
+    Boxes[0] = initBox(position, vec3(0.7, 2.5, 0.6), vec4(0.0, 0.5, 6.5, 1.0),
+                       vec4(1.0, 1.0, 0.0, 1.0), 0);
+    Cones[0] = initCone(position, vec3(0.0,0.0,0.0), vec3(0.0,1.0,-0.1), vec4(0.0, 3.0, 6.6, 1.0),
+                        0.7, 0.1, vec4(0.0, 0.5, 0.5, 1.0), 0);
     sPlaneObj planeDistance = initPlane(vec4(1.0),position);
 
     // use Logic to build the correct distance
     sColoredObj d = OBJdifference(Spheres[0].Obj, Spheres[1].Obj);
+    d = OBJunion(d, Boxes[0].Obj);
+    d = OBJunion(d, Cones[0].Obj);
     d = OBJunion(d, Spheres[2].Obj);
     d = OBJunion(d, planeDistance.Obj);
     
