@@ -32,6 +32,26 @@ struct sBox
     vec4 center;
 };
     
+struct sTorus
+{
+    vec2 toroid;
+    vec4 center;
+};
+    
+struct sCapsule
+{
+    vec3 top;
+    vec3 bottom;
+    float radius;
+    vec4 center;
+};
+    
+struct sEllipsoid
+{
+    vec3 plane;
+    vec4 center;
+};
+    
 struct sColoredObj
 {
     vec4 color;
@@ -61,6 +81,24 @@ struct sBoxObj
 {
     sColoredObj Obj;
 	sBox box;
+};
+   
+struct sTorusObj
+{
+    sColoredObj Obj;
+    sTorus torus;
+};
+    
+struct sCapsuleObj
+{
+    sColoredObj Obj;
+    sCapsule capsule;
+};
+    
+struct sEllipsoidObj
+{
+    sColoredObj Obj;
+    sEllipsoid ellipsoid;
 };
 
 struct sPlaneObj
@@ -130,27 +168,28 @@ sPlaneObj initPlane(vec4 color, vec3 p)
     return plane;
 }
 
-sCylinderObj initCylinder(vec3 position, vec3 top, vec3 bottom, float radius,
-							vec4 color, int index)
+sCylinderObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
+                          float radius, vec4 color, int index)
 {
 	sCylinderObj cylinder;
 	cylinder.cylinder.top = top;
 	cylinder.cylinder.bottom = bottom;
+    cylinder.cylinder.center = center;
 	cylinder.cylinder.radius = radius;
 	cylinder.Obj.color = color;
 	cylinder.Obj.index = index;
     vec3  bottomToTop = bottom - top;
-    vec3  positionToTop = position - top;
-    float fullLength = dot(bottomToTop,bottomToTop);
-    float currentLength = dot(positionToTop,bottomToTop);
-    float x = length(positionToTop*fullLength-bottomToTop*currentLength) - radius*fullLength;
-    float y = abs(currentLength-fullLength*0.5)-fullLength*0.5;
-    float x2 = x*x;
-    float y2 = y*y*fullLength;
+    vec3  positionToTop = (position - center.xyz) - top;
+    float fullLength = dot(bottomToTop, bottomToTop);
+    float currentLength = dot(positionToTop, bottomToTop);
+    float x = length(positionToTop * fullLength - bottomToTop * currentLength) - radius * fullLength;
+    float y = abs(currentLength - fullLength * 0.5) - fullLength * 0.5;
+    float x2 = x * x;
+    float y2 = y * y * fullLength;
     
-    float d = (max(x,y)<0.0)?-min(x2,y2):(((x>0.0)?x2:0.0)+((y>0.0)?y2:0.0));
+    float d = (max(x, y) < 0.0) ? -min(x2, y2) : (((x > 0.0) ? x2 : 0.0) + ((y > 0.0) ? y2 : 0.0));
     
-    cylinder.Obj.dist = sign(d)*sqrt(abs(d))/fullLength;
+    cylinder.Obj.dist = sign(d) * sqrt(abs(d)) / fullLength;
 	return cylinder;
 }
 
@@ -199,16 +238,113 @@ sBoxObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color, int in
 	box.Obj.dist = length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 	return box;
 }
+
+sTorusObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color, int index )
+{
+    sTorusObj torus;
+    torus.torus.toroid = toroid;
+    torus.torus.center = center;
+    torus.Obj.color = color;
+    torus.Obj.index = index;
+    vec2 innerDistance = vec2(length((position.xy - center.xy)) - toroid.x,(position.z - center.z));
+    torus.Obj.dist = length(innerDistance) - toroid.y;
+    return torus;
+}
+
+sCapsuleObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center, 
+                float radius, vec4 color, int index )
+{
+    sCapsuleObj capsule;
+    capsule.capsule.top = top;
+    capsule.capsule.bottom = bottom;
+    capsule.capsule.center = center;
+    capsule.capsule.radius = radius;
+    capsule.Obj.color = color;
+    capsule.Obj.index = index;
+    vec3 topFromPosition = (position - center.xyz) - top, topFromBottom = bottom - top;
+    float height = clamp( dot(topFromPosition, topFromBottom)
+                         / dot(topFromBottom, topFromBottom), 0.0, 1.0 );
+    capsule.Obj.dist = length( topFromPosition - topFromBottom * height ) - radius;
+    return capsule;
+}
+
+sEllipsoidObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color, int index )
+{
+    sEllipsoidObj ellipsoid;
+    ellipsoid.ellipsoid.plane = plane;
+    ellipsoid.ellipsoid.center = center;
+    ellipsoid.Obj.color = color;
+    ellipsoid.Obj.index = index;
+    float section0 = length((position - center.xyz) / plane);
+    float section1 = length((position - center.xyz) / (plane * plane));
+    ellipsoid.Obj.dist = section0 * (section0 - 1.0) / section1;
+    return ellipsoid;
+}
     
 float renderScene(vec3 position, out vec4 color)
 {
-    sSphereObj Spheres[3];
+    sSphereObj Spheres[10];
     sBoxObj Boxes[3];
     sConeObj Cones[3];
-    int currentarray, currentindex;
+    sCylinderObj Cylinders[3];
+    sTorusObj Tori[3];
+    sCapsuleObj Capsules[3];
+    sEllipsoidObj Ellipsoids[3];
+    
+    
+    sPlaneObj planeDistance = initPlane(vec4(1.0),position);
+    Spheres[0] = initSphere(vec4(-1.5, 1.0, 6.0, 1.0), 1.0, // Front wheel
+                  vec4(1.0, 0.5, 0.0, 1.0), 0, position);
+    Spheres[1] = initSphere(vec4(-1.5, 1.0, 5.1, 1.0), 0.8, // Front wheel negative space left
+                  vec4(1.0, 0.5, 0.0, 1.0), 0, position);
+    Spheres[2] = initSphere(vec4(-1.5, 1.0, 6.9, 1.0), 0.8, // Front wheel negative space right
+                  vec4(1.0, 0.5, 0.0, 1.0), 0, position);
+    Spheres[3] = initSphere(vec4(-1.5, 1.0, 6.4, 1.0), 0.15, // Front wheel cap left
+                  vec4(1.0), 0, position);
+    Spheres[4] = initSphere(vec4(-1.5, 1.0, 5.6, 0.0), 0.15, // Frot wheel cap right
+                  vec4(1.0), 0, position);
+
+    Cylinders[0] = initCylinder(position, vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, -0.4), vec4(-1.5, 1.0, 6.0, 1.0),
+                  0.9, vec4(0.0), 0); // Front wheel black
+    Cylinders[1] = initCylinder(position, vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, -0.4), vec4(1.4, 0.65, 6.0, 1.0),
+                  0.06, vec4(1.0, 0.5, 0.0, 1.0), 0); // foothold axel thing
+
+    Cones[0] = initCone(position, vec3(0.0,0.0,0.0), vec3(1.4,0.0,0.0), vec4(-.7, 1.0, 6.0, 1.0),
+                  0.6, 0.2, vec4(0.7), 0); // Front wheel cone
+    Cones[1] = initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 5.8, 1.0),
+                  0.2, 0.1, vec4(0.7), 0); // Left pipe bit
+    Cones[2] = initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 6.2, 1.0),
+                  0.2, 0.1, vec4(0.7), 0); // Left pipe bit
+
+	Boxes[0] = initBox(position, vec3(1.5, 0.65, 0.3), vec4(0.0, 1.0, 6.0, 1.0),
+                  vec4(0.7), 0); // body
+	Boxes[1] = initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.6, 1.0, 5.72, 1.0),
+                  vec4(0.7), 0); // backwheel frame left
+	Boxes[2] = initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.6, 1.0, 6.28, 1.0),
+                  vec4(0.7), 0); // backwheel frame right
+    Tori[0] = initTorus(position, vec2(0.8,0.17), vec4(3.0, 1.0, 6.0, 1.0), vec4(1.0, 0.5, 0.0, 1.0), 0);
+
+    
+    //front wheel done
+    sColoredObj d = OBJdifference(Spheres[0].Obj,Spheres[1].Obj);
+    d = OBJdifference(d,Spheres[2].Obj);
+    d = OBJunion(d, Spheres[3].Obj);
+    d = OBJunion(d, Spheres[4].Obj);
+    d = OBJunion(d, Cylinders[0].Obj);
+    
+    d = OBJunion(d, Boxes[0].Obj);
+    d = OBJunion(d, Cylinders[1].Obj);
+    d = OBJunion(d, Cones[0].Obj);
+    d = OBJunion(d, Cones[1].Obj);
+    d = OBJunion(d, Cones[2].Obj);
+	d = OBJunion(d, Boxes[1].Obj);
+    d = OBJunion(d, Boxes[2].Obj);
+    d = OBJunion(d, Tori[0].Obj);
+
+    d = OBJunion(d, planeDistance.Obj);
     
     // create scene objects
-    Spheres[0] = initSphere(vec4(-1.5, 0.0, 6.0, 1.0), 1.0, 
+    /*Spheres[0] = initSphere(vec4(-1.5, 0.0, 6.0, 1.0), 1.0, 
                   vec4(1.0, 0.0, 0.0, 1.0), 0, position);
     Spheres[1] = initSphere(vec4(-1.0, 0.5, 5.5, 1.0),0.5,
              vec4(1.0, 1.0, 0.0, 1.0), 1, position);
@@ -218,15 +354,26 @@ float renderScene(vec3 position, out vec4 color)
                        vec4(1.0, 1.0, 0.0, 1.0), 0);
     Cones[0] = initCone(position, vec3(0.0,0.0,0.0), vec3(0.0,1.0,-0.1), vec4(0.0, 3.0, 6.6, 1.0),
                         0.7, 0.1, vec4(0.0, 0.5, 0.5, 1.0), 0);
+    Cylinders[0] = initCylinder(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(0.0, 1.0, 5.6, 1.0),
+                          0.2, vec4(0.5, 0.2, 0.7, 1.0), 0);
+    Tori[0] = initTorus(position, vec2(0.3, 0.3), vec4(3.0, 1.0, 5.6, 1.0), vec4(0.2, 0.9, 0.8, 1.0), 0);
+    Capsules[0] = initCapsule(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(-3.0, 1.0, 5.6, 1.0), 
+                0.2, vec4(0.0, 1.0, 0.0, 1.0), 0);
+    Ellipsoids[0] = initEllipsoid(position, vec3(0.2, 0.3, 0.4), vec4(-3.0, 3.0, 5.6, 1.0), 
+                                  vec4(0.0, 0.0, 1.0, 1.0), 0);
     sPlaneObj planeDistance = initPlane(vec4(1.0),position);
 
     // use Logic to build the correct distance
     sColoredObj d = OBJdifference(Spheres[0].Obj, Spheres[1].Obj);
     d = OBJunion(d, Boxes[0].Obj);
     d = OBJunion(d, Cones[0].Obj);
+    d = OBJunion(d, Cylinders[0].Obj);
+    d = OBJunion(d, Tori[0].Obj);
+    d = OBJunion(d, Capsules[0].Obj);
+    d = OBJunion(d, Ellipsoids[0].Obj);
     d = OBJunion(d, Spheres[2].Obj);
     d = OBJunion(d, planeDistance.Obj);
-    
+    */
     //assign color
 	color = d.color;
     
