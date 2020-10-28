@@ -13,13 +13,17 @@ const int KEY_Q     = 81;
 const int KEY_E     = 69;
 
 
-
+// getKey:
+// channel:
+// key1:
+// key2:
 float getKey(sampler2D channel, int key1, int key2)
 {
     return texelFetch(channel, ivec2(key1, 0), 0).x + 
         texelFetch(channel, ivec2(key2, 0), 0).x;
 }
 
+//
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = fragCoord / iResolution.xy;

@@ -1,3 +1,8 @@
+// Work by Demetrius Nekos and Nathan Boisvert
+// This common tab is responsible for holding all functions and structs relevent to the overall project
+// This tab also contains the code for the main implementations of lighting, ray marching, and scene rendering
+// 
+
 #define MAX_STEPS 150
 #define MAX_DIST 150.0
 #define SURF_DIST 0.0001
@@ -72,12 +77,14 @@ sColoredObj initPlane(vec4 color, vec3 p)
 
 // initCylinder: Distance function of a cylinder borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// top:
-// bottom:
-// center:
-// radius:
-// color: 
+// position: Coordinate in space that a ray hits a cylinder created by this function
+// top: Holds the coordinate space for the top part of the cylinder (axis alignment)
+// bottom: Holds the coordinate space for the bottom part of the cylinder (axis alignment)
+// center: Coordinates to manipulate cylinders position in coordinate space. Sets center point of cylinder
+// radius: Holds the radius of the cylinder
+// color: Holds the color of the cylinder
+// Functions main purpose is to algebraically calculate the distance of any point on the cylinder
+// from a position passed into the function and return that distance.
 sColoredObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
                           float radius, vec4 color)
 {
@@ -98,15 +105,17 @@ sColoredObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
 	return cylinder;
 }
 
-// initCylinder: Distance function of a cone borrowed from: 
+// initCone: Distance function of a cone borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// top:
-// bottom:
-// center:
-// topRadius:
-// bottomRadius:
-// color: 
+// position: Coordinate in space that a ray hits a cone created by this function
+// top: Holds the coordinate space for the top part of the cone (axis alignment)
+// bottom: Holds the coordinate space for the botom part of the cone (axis alignment)
+// center: Coordinates to manipulate cones position in coordinate space. Sets center point of cone
+// topRadius: Radius of the top part of the cone
+// bottomRadius: Radius of the bottom part of the cone
+// color: Holds the color of the cone
+// Functions main purpose is to algebraically calculate the distance of any point on the cone
+// from a position passed into the function and return that distance.
 sColoredObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float topRadius,
 				float bottomRadius, vec4 color)
 {
@@ -135,12 +144,14 @@ sColoredObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float to
 	return cone;
 }
 
-// initCylinder: Distance function of a box borrowed from: 
+// initBox: Distance function of a box borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// dimensions:
-// center:
-// color: 
+// position: Coordinate in space that a ray hits a box created by this function
+// dimensions: Holds the dimensions of the box
+// center: Coordinates to manipulate boxes position in coordinate space. Sets center point of box
+// color: Holds the color of the box
+// Functions main purpose is to algebraically calculate the distance of any point on the box
+// from a position passed into the function and return that distance.
 sColoredObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color)
 {
 	sColoredObj box;
@@ -151,12 +162,14 @@ sColoredObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color)
 	return box;
 }
 
-// initCylinder: Distance function of a torus borrowed from: 
+// initTorus: Distance function of a torus borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// toroid:
-// center:
-// color: 
+// position: Coordinate in space that a ray hits a torus created by this function
+// toroid: axis of revolution against which the torus is drawn to. Usually represented as a circle
+// center: Coordinates to manipulate tori position in coordinate space. Sets center point of torus
+// color: Holds the color of the torus
+// Functions main purpose is to algebraically calculate the distance of any point on the torus
+// from a position passed into the function and return that distance.
 sColoredObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color)
 {
     sColoredObj torus;
@@ -167,14 +180,16 @@ sColoredObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color)
     return torus;
 }
 
-// initCylinder: Distance function of a capsule borrowed from: 
+// initCapsule: Distance function of a capsule borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// top:
-// bottom:
-// center:
-// radius:
-// color: 
+// position: Coordinate in space that a ray hits a capsule created by this function
+// top: Holds the coordinate space for the top part of the capsule (axis alignment)
+// bottom: Holds the coordinate space for the bottom part of the capsule (axis alignment)
+// center: Coordinates to manipulate capsules position in coordinate space. Sets center point of capsule
+// radius: Holds the radius of the capsule
+// color: Holds the color of the capsule
+// Functions main purpose is to algebraically calculate the distance of any point on the capsule
+// from a position passed into the function and return that distance.
 sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center, 
                 float radius, vec4 color)
 {
@@ -188,12 +203,14 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
     return capsule;
 }
 
-// initCylinder: Distance function of a ellipsoid borrowed from: 
+// initEllipsoid: Distance function of a ellipsoid borrowed from: 
 // https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
-// position:
-// plane:
-// center:
-// color: 
+// position: Coordinate in space that a ray hits a ellipsoid created by this function
+// plane: center of the ellipsoid which act as intersection point for symmetrical drawing
+// center: Coordinates to manipulate ellipsoids position in coordinate space. Sets center point of ellipsoid
+// color: Holds the color of the ellipsoid
+// Functions main purpose is to algebraically calculate the distance of any point on the ellipsoid
+// from a position passed into the function and return that distance.
 sColoredObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color )
 {
     sColoredObj ellipsoid;
@@ -207,8 +224,11 @@ sColoredObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color )
 
 // renderScene: Creates objects according to their distance functions
 //              Adds model to scene by returning the calculated sum distance of all objects
-// Position:
-// Color:
+// Position: A ray created using ray marching
+// Color: Output color
+// Sets up scene for model rendering by creating containers for Objects and using distance functions
+// to fill containers with data for each object being rendered in scene. Also uses union, difference,
+// and intersection functions to determine if space is being displayed, negated, or conjoined
 float renderScene(vec3 position, out vec4 color)
 {
     sColoredObj Spheres[10];
@@ -254,10 +274,10 @@ float renderScene(vec3 position, out vec4 color)
     
     Cylinders[7] = initCylinder(position, vec3(1.0,0.0,0.0), vec3(-2.5,0.0,0.0), vec4(1.2, 1.7, 6.0, 1.0),
                   0.5, vec4(1.0, 0.5, 0.0, 1.0)); // Main Body Top
-    Cylinders[8] = initCylinder(position, vec3(2.0,-0.5,0.0), vec3(0.5,0.5,0.0), vec4(-2.0, 0.9, 6.0, 1.0),
-                  0.7, vec4(1.0, 0.5, 0.0, 1.0)); // Main Body, lower footrest
-    Cylinders[9] = initCylinder(position, vec3(0.55,0.5,0.0), vec3(-1.25,-0.5,0.0), vec4(2.8, 1.7, 6.0, 1.0),
-                  0.53, vec4(1.0, 0.5, 0.0, 1.0)); //Back Wheel body cover negative
+    Cylinders[8] = initCylinder(position, vec3(2.0,-0.5,0.0), vec3(0.5,0.5,0.0), vec4(-2.3, 0.97, 6.0, 1.0),
+                  0.7, vec4(1.0, 0.5, 0.0, 1.0)); // Front Body cutoff
+    Cylinders[9] = initCylinder(position, vec3(0.6,0.7,0.0), vec3(-1.25,-0.5,0.0), vec4(3.012, 1.4, 6.0, 1.0),
+                  0.7, vec4(1.0, 0.5, 0.0, 1.0)); //Back body cutoff
 
     
                                                             
@@ -289,17 +309,19 @@ float renderScene(vec3 position, out vec4 color)
                   vec4(1.0, 0.5, 0.0, 1.0)); //Main Body
     Boxes[7] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.1, 0.3, 6.0, 1.0),
                   vec4(1.0, 0.5, 0.0, 1.0)); // Main body front cutoff negative
-    Boxes[8] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.4, 0.96, 5.55, 1.0),
-                  vec4(0));
-    Boxes[9] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(1.0, 1.5, 5.55, 1.0),
-                  vec4(0));
+    Boxes[8] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.4, 0.99, 5.55, 1.0),
+                  vec4(0)); //Window lower cutoff
+    Boxes[9] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(1.2, 1.5, 5.55, 1.0),
+                  vec4(0)); //Window back cutoff
 
 	Tori[0] = initTorus(position, vec2(0.8,0.19), vec4(2.6, 1.0, 6.0, 1.0), vec4(1.0, 0.5, 0.0, 1.0));
     
-    Capsules[0] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.4, 1.75, 5.55, 1.0), 
-                0.2, vec4(0.0)); //right window
-    Capsules[1] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.47, 1.75, 6.45, 1.0), 
-                0.2, vec4(0.0)); //left window
+    Capsules[0] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.4, 1.8, 5.55, 1.0), 
+                0.3, vec4(0.0)); //right window
+    Capsules[1] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.47, 1.8, 6.45, 1.0), 
+                0.3, vec4(0.0)); //left window
+    Capsules[2] = initCapsule(position, vec3(0.8,0.0,0.0), vec3(-2.6,0.0,0.0), vec4(1.2, 1.9, 6.0, 1.0),
+                  0.53, vec4(1.0, 0.5, 0.0, 1.0)); //Main Body Top
 
     // use Logic to build the correct distance
 
@@ -327,7 +349,7 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJdifference(d, Boxes[3]);
     d = OBJdifference(d, Boxes[4]);
     
-    sColoredObj body = OBJunion(Boxes[0], Cylinders[7]);
+    sColoredObj body = OBJunion(Boxes[0], Capsules[2]);
     body = OBJunion(body, Boxes[6]);
     body = OBJdifference(body, Boxes[5]);
     body = OBJdifference(body, Cylinders[8]);
@@ -377,11 +399,12 @@ float renderScene(vec3 position, out vec4 color)
 
 // RayMarching Function: Draws scene by getting a distance for every object in the scene from the 
 //                       Calculated position found from ray origin and ray direction
-// color:
+// color: Output color
 // eye: ray origin
 // marchingDirection: ray direction
-// start:
-// end:
+// start: Minimum distance ray can travel while searching for Objects
+// end: Maximum distance ray can travel while searching for Objects
+//Basic ray marching function used to 
 float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection, float start, float end) {
     //credit to https://www.shadertoy.com/view/4tcGDr
     
@@ -399,8 +422,9 @@ float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection
     return end;
 }
 
-// getNormal:
-// p:
+// getNormal: Calculate normal for 
+// p: A ray created using ray marching
+// Gets the normal
 vec3 getNormal(vec3 p){
     
     vec4 color;//placeholder, not needed for this.

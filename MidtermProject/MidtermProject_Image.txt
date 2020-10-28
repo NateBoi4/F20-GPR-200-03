@@ -1,3 +1,4 @@
+// Basic Rotation matrix for any axis
 mat3 rotationMatrix(in vec2 angle)
 {
     float sa = sin(angle.x);
@@ -9,16 +10,8 @@ mat3 rotationMatrix(in vec2 angle)
                 0.0, cb, -sb,
                 -sa, ca * sb, cb * ca);
 }
-/*
-mat3 setCamera( in vec3 ro, in vec3 ta, float cr )
-{
-	vec3 cw = normalize(ta-ro);
-	vec3 cp = vec3(sin(cr), cos(cr),0.0);
-	vec3 cu = normalize( cross(cw,cp) );
-	vec3 cv =          ( cross(cu,cw) );
-    return mat3( cu, cv, cw );
-}*/
 
+// Sets up and draws scene
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     vec2 uv = (fragCoord - 0.5*iResolution.xy)/iResolution.y;
