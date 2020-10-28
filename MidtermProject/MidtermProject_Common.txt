@@ -201,6 +201,13 @@ float renderScene(vec3 position, out vec4 color)
                   0.30, vec4(0.7)); //Back Wheel body cover
     Cylinders[6] = initCylinder(position, vec3(0.55,0.3,0.0), vec3(-1.25,-0.5,0.0), vec4(2.2, 1.6, 6.0, 1.0),
                   0.27, vec4(0.7)); //Back Wheel body cover negative
+    
+    Cylinders[7] = initCylinder(position, vec3(1.0,0.0,0.0), vec3(-2.5,0.0,0.0), vec4(1.2, 1.7, 6.0, 1.0),
+                  0.5, vec4(1.0, 0.5, 0.0, 1.0)); // Main Body Top
+    Cylinders[8] = initCylinder(position, vec3(2.0,-0.5,0.0), vec3(0.5,0.5,0.0), vec4(-2.0, 0.9, 6.0, 1.0),
+                  0.7, vec4(1.0, 0.5, 0.0, 1.0)); // Main Body, lower footrest
+    Cylinders[9] = initCylinder(position, vec3(0.55,0.5,0.0), vec3(-1.25,-0.5,0.0), vec4(2.8, 1.7, 6.0, 1.0),
+                  0.53, vec4(1.0, 0.5, 0.0, 1.0)); //Back Wheel body cover negative
 
     
                                                             
@@ -226,6 +233,12 @@ float renderScene(vec3 position, out vec4 color)
                   vec4(0.7)); // backwheel cutoff negative
     Boxes[4] = initBox(position, vec3(0.7, 0.8, 0.25), vec4(2.8, 1.0, 6.0, 1.0),
                   vec4(0.7)); // backwheel cutoff negative
+    Boxes[5] = initBox(position, vec3(0.7, 0.8, 1.25), vec4(2.2, 0.5, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0)); // Main body back cutoff negative
+    Boxes[6] = initBox(position, vec3(1.58, 0.5, 0.5), vec4(0.3, 1.25, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0)); //Main Body
+    Boxes[7] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.1, 0.3, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0)); // Main body front cutoff negative
 
 	Tori[0] = initTorus(position, vec2(0.8,0.19), vec4(2.6, 1.0, 6.0, 1.0), vec4(1.0, 0.5, 0.0, 1.0));
 
@@ -254,6 +267,13 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJdifference(d, Cylinders[4]);
     d = OBJdifference(d, Boxes[3]);
     d = OBJdifference(d, Boxes[4]);
+    
+    sColoredObj body = OBJunion(Boxes[0], Cylinders[7]);
+    body = OBJunion(body, Boxes[6]);
+    body = OBJdifference(body, Boxes[5]);
+    body = OBJdifference(body, Cylinders[8]);
+    body = OBJdifference(body, Boxes[7]);
+    body = OBJdifference(body, Cylinders[9]);
 
 
     
@@ -261,6 +281,7 @@ float renderScene(vec3 position, out vec4 color)
     wheel = OBJunion(wheel, Cylinders[3]);
     d = OBJunion(d, Spheres[5]);
     d = OBJunion(d, wheel);
+    d = OBJunion(d, body);
 
     
     d = OBJunion(d, planeDistance);
