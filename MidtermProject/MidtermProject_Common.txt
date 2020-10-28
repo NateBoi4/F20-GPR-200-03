@@ -3,6 +3,9 @@
 #define SURF_DIST 0.0001
 #define MIN_DIST 0.0
     
+// sColoredOBJ: Object in scene
+// color: color of object
+// dist: distance of object calculated by corresponding distance function (initOBJ)
 struct sColoredObj
 {
     vec4 color;
@@ -67,6 +70,14 @@ sColoredObj initPlane(vec4 color, vec3 p)
     return plane;
 }
 
+// initCylinder: Distance function of a cylinder borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// top:
+// bottom:
+// center:
+// radius:
+// color: 
 sColoredObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
                           float radius, vec4 color)
 {
@@ -87,6 +98,15 @@ sColoredObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
 	return cylinder;
 }
 
+// initCylinder: Distance function of a cone borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// top:
+// bottom:
+// center:
+// topRadius:
+// bottomRadius:
+// color: 
 sColoredObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float topRadius,
 				float bottomRadius, vec4 color)
 {
@@ -115,6 +135,12 @@ sColoredObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float to
 	return cone;
 }
 
+// initCylinder: Distance function of a box borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// dimensions:
+// center:
+// color: 
 sColoredObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color)
 {
 	sColoredObj box;
@@ -125,6 +151,12 @@ sColoredObj initBox( vec3 position, vec3 dimensions, vec4 center, vec4 color)
 	return box;
 }
 
+// initCylinder: Distance function of a torus borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// toroid:
+// center:
+// color: 
 sColoredObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color)
 {
     sColoredObj torus;
@@ -135,6 +167,14 @@ sColoredObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color)
     return torus;
 }
 
+// initCylinder: Distance function of a capsule borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// top:
+// bottom:
+// center:
+// radius:
+// color: 
 sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center, 
                 float radius, vec4 color)
 {
@@ -148,7 +188,13 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
     return capsule;
 }
 
-sColoredObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color, int index )
+// initCylinder: Distance function of a ellipsoid borrowed from: 
+// https://iquilezles.org/www/articles/distfunctions/distfunctions.htm
+// position:
+// plane:
+// center:
+// color: 
+sColoredObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color )
 {
     sColoredObj ellipsoid;
     ellipsoid.color = color;
@@ -158,7 +204,11 @@ sColoredObj initEllipsoid( vec3 position, vec3 plane, vec4 center, vec4 color, i
     ellipsoid.dist = section0 * (section0 - 1.0) / section1;
     return ellipsoid;
 }
-    
+
+// renderScene: Creates objects according to their distance functions
+//              Adds model to scene by returning the calculated sum distance of all objects
+// Position:
+// Color:
 float renderScene(vec3 position, out vec4 color)
 {
     sColoredObj Spheres[10];
@@ -325,6 +375,13 @@ float renderScene(vec3 position, out vec4 color)
     return d.dist;
 }
 
+// RayMarching Function: Draws scene by getting a distance for every object in the scene from the 
+//                       Calculated position found from ray origin and ray direction
+// color:
+// eye: ray origin
+// marchingDirection: ray direction
+// start:
+// end:
 float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection, float start, float end) {
     //credit to https://www.shadertoy.com/view/4tcGDr
     
@@ -342,7 +399,8 @@ float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection
     return end;
 }
 
-
+// getNormal:
+// p:
 vec3 getNormal(vec3 p){
     
     vec4 color;//placeholder, not needed for this.
