@@ -239,8 +239,17 @@ float renderScene(vec3 position, out vec4 color)
                   vec4(1.0, 0.5, 0.0, 1.0)); //Main Body
     Boxes[7] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.1, 0.3, 6.0, 1.0),
                   vec4(1.0, 0.5, 0.0, 1.0)); // Main body front cutoff negative
+    Boxes[8] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.4, 0.96, 5.55, 1.0),
+                  vec4(0));
+    Boxes[9] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(1.0, 1.5, 5.55, 1.0),
+                  vec4(0));
 
 	Tori[0] = initTorus(position, vec2(0.8,0.19), vec4(2.6, 1.0, 6.0, 1.0), vec4(1.0, 0.5, 0.0, 1.0));
+    
+    Capsules[0] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.4, 1.75, 5.55, 1.0), 
+                0.2, vec4(0.0)); //right window
+    Capsules[1] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.47, 1.75, 6.45, 1.0), 
+                0.2, vec4(0.0)); //left window
 
     // use Logic to build the correct distance
 
@@ -274,6 +283,11 @@ float renderScene(vec3 position, out vec4 color)
     body = OBJdifference(body, Cylinders[8]);
     body = OBJdifference(body, Boxes[7]);
     body = OBJdifference(body, Cylinders[9]);
+    
+    sColoredObj windows = OBJunion(Spheres[5], Capsules[0]);
+    windows = OBJunion(windows, Capsules[1]);
+    windows = OBJdifference(windows, Boxes[8]);
+    windows = OBJdifference(windows, Boxes[9]);
 
 
     
@@ -282,6 +296,7 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJunion(d, Spheres[5]);
     d = OBJunion(d, wheel);
     d = OBJunion(d, body);
+    d = OBJunion(d, windows);
 
     
     d = OBJunion(d, planeDistance);
