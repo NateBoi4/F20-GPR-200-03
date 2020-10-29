@@ -32,16 +32,16 @@ mat3 rotationMatrix(in vec2 angle)
 // Sets up and draws scene
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-    vec2 uv = (fragCoord - 0.5*iResolution.xy)/iResolution.y; //Centralized to midpoint on screen
+    vec2 uv = (fragCoord - 0.5*iResolution.xy)/iResolution.y; // Centralized to midpoint on screen
     vec2 camuv = fragCoord / iResolution.xy; // used for sampling camera channels
     
     // default cam position + position gotten from inputs
-    vec3 rayOrigin = vec3(-0.2, 3.0, 2.0) + texture(iChannel0,uv).xyz;
+    vec3 rayOrigin = vec3(0.2, 2.3, 1.0) + texture(iChannel0,uv).xyz;
     // default coords * mouse angle (put through rotation matrix
     vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0)) * rotationMatrix(texture(iChannel1,uv).xy * 3.14159);
         
     // distance from viewport to whatever the ray hits
-    sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST, iTime);    	
+sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST, iTime);    	
     // point on object surface
     vec3 point = rayOrigin + dist.dist * rayDirection;
     
