@@ -24,17 +24,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec4 color;
     
     // distance from viewport to whatever the ray hits
-    float dist = shortestDistanceToSurface(color, rayOrigin, rayDirection, MIN_DIST, MAX_DIST);
-    
-    /*if (dist > MAX_DIST - SURF_DIST) {
-        // Didn't hit anything
-        fragColor = vec4(0.0);
-		return;
-    }*/
-	
+    sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST);
+    	
     // point on object surface
-    vec3 point = rayOrigin + dist * rayDirection;
+    vec3 point = rayOrigin + dist.dist * rayDirection;
     
+	vec4 color = dist.color;
     color = calcLighting ( vec3(2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
                     getNormal(point),  rayOrigin, point-rayOrigin,color)
         + calcLighting ( vec3(-2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,

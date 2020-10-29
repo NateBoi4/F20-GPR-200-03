@@ -213,81 +213,12 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
 // Sets up scene for model rendering by creating containers for Objects and using distance functions
 // to fill containers with data for each object being rendered in scene. Also uses union, difference,
 // and intersection functions to determine if space is being displayed, negated, or conjoined   
-float renderScene(vec3 position, out vec4 color)
+sColoredObj renderScene(vec3 position)
 {
-    sColoredObj Boxes[15];
-    sColoredObj Cones[10];
-    sColoredObj Cylinders[15];
-    sColoredObj Capsules[10];
-    
-    // create scene objects
-    sColoredObj planeDistance = initPlane(vec4(1.0),position);
-
-    Cylinders[9] = initCylinder(position, vec3(0.5,0.5,0.0), vec3(-0.8,-0.2,0.0), vec4(2.44, 1.36, 5.4, 1.0),
-                  0.35, vec4(1.0, 0.5, 0.0, 1.0)); // orange body Back Wheel cover negative
-    Cylinders[10] = initCylinder(position, vec3(0.5,0.5,0.0), vec3(-0.8,-0.2,0.0), vec4(2.44, 1.36, 6.6, 1.0),
-                  0.35, vec4(1.0, 0.5, 0.0, 1.0)); // orange body Back Wheel cover negative
-
-
-                                                            
-    Cones[0] = initCone(position, vec3(0.0,0.0,0.0), vec3(1.4,0.0,0.0), vec4(-.7, 1.0, 6.0, 1.0),
-                  0.6, 0.2, vec4(0.7)); // Front wheel cone
-    Cones[1] = initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 5.8, 1.0),
-                  0.2, 0.1, vec4(0.7)); // Left pipe bit
-    Cones[2] = initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 6.2, 1.0),
-                  0.2, 0.1, vec4(0.7)); // right pipe bit
-    Cones[3] = initCone(position, vec3(0.0,0.0,-0.08), vec3(-.65,-0.15,0.0), vec4(2.65,1.7, 5.8, 1.0),
-                  0.2, 0.1, vec4(0.7)); // Left exhaust
-    Cones[4] = initCone(position, vec3(0.0,0.0,0.08), vec3(-.65,-0.15,0.0), vec4(2.65,1.7, 6.2, 1.0),
-                  0.2, 0.1, vec4(0.7)); // right exhaust
-	Cones[5] = initCone(position, vec3(0.0,0.0,0.0), vec3(1.6,0.0,0.0), vec4(-.78, 1.0, 6.0, 1.0),
-                  0.7, 0.2, vec4(1.0, 0.5, 0.0, 1.0)); // orage top front slant negative
-    Cones[6] = initCone(position, vec3(0.0,0.0,0.0), vec3(1.2,0.0,0.0), vec4(-1.3, 2.4, 5.45, 1.0),
-                  0.6, 0.3, vec4(0.0)); // window left slant negative
-    Cones[7] = initCone(position, vec3(0.0,0.0,0.0), vec3(1.2,0.0,0.0), vec4(-1.3, 2.4, 6.45, 1.0),
-                  0.6, 0.3, vec4(0.0)); // window right slant negative
-	Cones[8] = initCone(position, vec3(0.0,0.0,0.0), vec3(0.3,-0.7,0.0), vec4(0.48, 0.83, 6.0, 1.0),
-                  0.8, 0.8, vec4(1.0, 0.5, 0.0, 1.0)); // orage top front slant negative
-
-    
-    
-	Boxes[0] = initBox(position, vec3(1.5, 0.65, 0.3), vec4(0.0, 1.0, 6.0, 1.0),
-                  vec4(0.7)); // body
-	Boxes[1] = initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.7, 1.0, 5.72, 1.0),
-                  vec4(0.7)); // backwheel frame left
-	Boxes[2] = initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.6, 1.0, 6.28, 1.0),
-                  vec4(0.7)); // backwheel frame right
-    Boxes[3] = initBox(position, vec3(0.5, 1.5, 0.5), vec4(3.1, 1.0, 6.0, 1.0),
-                  vec4(0.7)); // backwheel cutoff negative
-    Boxes[4] = initBox(position, vec3(0.7, 0.8, 0.25), vec4(2.8, 1.0, 6.0, 1.0),
-                  vec4(0.7)); // backwheel cutoff negative
-    Boxes[5] = initBox(position, vec3(2.3, 1.0, 0.9), vec4(0.0, 1.74, 6.0, 1.0),
-                  vec4(1.0, 0.5, 0.0, 1.0)); // Orange body base cuttoff negative
-	
-    Boxes[6] = initBox(position, vec3(0.7, 0.5, 0.9), vec4(-1.76, 1.33, 6.0, 1.0),
-                  vec4(1.0, 0.5, 0.0, 1.0)); // orange body wheel negative
-    Boxes[7] = initBox(position, vec3(0.7, 0.5, 0.9), vec4(0.4, 0.6, 6.0, 1.0),
-                  vec4(1.0, 0.5, 0.0, 1.0));
-    Boxes[8] = initBox(position, vec3(0.2, 0.8, 0.9), vec4(2.0, 0.6, 6.0, 1.0),
-                  vec4(1.0, 0.5, 0.0, 1.0));
-
-    Boxes[9] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.4, 0.99, 5.55, 1.0),
-                  vec4(0)); //Window lower cutoff
-    Boxes[10] = initBox(position, vec3(1.3, 0.8, 1.25), vec4(1.2, 1.5, 5.55, 1.0),
-                  vec4(0)); //Window back cutoff
-    Boxes[11] = initBox(position, vec3(500.0, 0.8, 0.1), vec4(502.6, 1.0, 6.0, 1.0),
-                  vec4(mix(vec4(1.0),vec4(1.0, 0.5, 0.0, 1.0),position.y / 0.8))); //trail
-    
-    
-
-    Capsules[0] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.4, 1.8, 5.45, 1.0), 
-                0.3, vec4(0.0)); //right window
-    Capsules[1] = initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.47, 1.8, 6.45, 1.0), 
-                0.3, vec4(0.0)); //left window
 
     // use Logic to build the correct distance
 
-    //front wheel done
+    // front wheel done
     sColoredObj d = OBJdifference(initSphere(vec4(-1.5, 1.0, 6.0, 1.0), 1.0, // Front wheel
                   vec4(1.0, 0.5, 0.0, 1.0), position),
                   initSphere(vec4(-1.5, 1.0, 5.1, 1.0), 0.8, // Front wheel negative space left
@@ -301,81 +232,102 @@ float renderScene(vec3 position, out vec4 color)
     d = OBJunion(d, initCylinder(position, vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, -0.4), vec4(-1.5, 1.0, 6.0, 1.0),
                   0.9, vec4(0.0))); // Front wheel black
     
-                 //grey chasis
-    d = OBJunion(d, Boxes[0]);
+    // grey chasis
+    d = OBJunion(d, initBox(position, vec3(1.5, 0.65, 0.3), vec4(0.0, 1.0, 6.0, 1.0),
+                  vec4(0.7))); // body
     d = OBJunion(d, initCylinder(position, vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, -0.4), vec4(1.4, 0.65, 6.0, 1.0),
                   0.06, vec4(1.0, 0.5, 0.0, 1.0))); // foothold axel thing
-    d = OBJunion(d, Cones[0]);
-    d = OBJunion(d, Cones[1]);
-    d = OBJunion(d, Cones[2]);
-	d = OBJunion(d, Boxes[1]);
-    d = OBJunion(d, Boxes[2]);
+    d = OBJunion(d, initCone(position, vec3(0.0,0.0,0.0), vec3(1.4,0.0,0.0), vec4(-.7, 1.0, 6.0, 1.0),
+                  0.6, 0.2, vec4(0.7))); // Front wheel cone
+    d = OBJunion(d, initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 5.8, 1.0),
+                  0.2, 0.1, vec4(0.7))); // Left pipe bit
+    d = OBJunion(d, initCone(position, vec3(0.0,-0.1,0.0), vec3(-.5,0.0,0.0), vec4(0.95, 0.87, 6.2, 1.0),
+                  0.2, 0.1, vec4(0.7))); // right pipe bit);
+	d = OBJunion(d, initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.7, 1.0, 5.72, 1.0),
+                  vec4(0.7))); // backwheel frame left
+    d = OBJunion(d, initBox(position, vec3(1.0, 0.65, 0.02), vec4(1.6, 1.0, 6.28, 1.0),
+                  vec4(0.7))); // backwheel frame right
     d = OBJunion(d, initCylinder(position, vec3(0.5,0.3,0.0), vec3(-1.2,-0.5,0.0), vec4(2.2, 1.6, 6.0, 1.0),
-                  0.30, vec4(0.7))); //Back Wheel body cover);
-    d = OBJunion(d, Cones[3]);
-    d = OBJunion(d, Cones[4]);
+                  0.30, vec4(0.7))); // Back Wheel body cover);
+    d = OBJunion(d, initCone(position, vec3(0.0,0.0,-0.08), vec3(-.65,-0.15,0.0), vec4(2.65,1.7, 5.8, 1.0),
+                  0.2, 0.1, vec4(0.7))); // Left exhaust
+    d = OBJunion(d, initCone(position, vec3(0.0,0.0,0.08), vec3(-.65,-0.15,0.0), vec4(2.65,1.7, 6.2, 1.0),
+                  0.2, 0.1, vec4(0.7))); // right exhaust
 
     
     d = OBJdifference(d, initCylinder(position, vec3(0.55,0.3,0.0), vec3(-1.25,-0.5,0.0), vec4(2.2, 1.6, 6.0, 1.0),
                   0.27, vec4(0.7))); //Back Wheel body cover negative
     d = OBJdifference(d, initCylinder(position, vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), vec4(2.6, 1.0, 6.0, 1.0),
                   0.28, vec4(0.7))); //back wheel 'axis' negative
-    d = OBJdifference(d, Boxes[3]);
-    d = OBJdifference(d, Boxes[4]);
+    d = OBJdifference(d,initBox(position, vec3(0.5, 1.5, 0.5), vec4(3.1, 1.0, 6.0, 1.0),
+                  vec4(0.7))); // backwheel cutoff negative
+    d = OBJdifference(d, initBox(position, vec3(0.7, 0.8, 0.25), vec4(2.8, 1.0, 6.0, 1.0),
+                  vec4(0.7))); // backwheel cutoff negative
 
 
     //orange body
     sColoredObj top = OBJunion(initCylinder(position, vec3(0.0,0.0,0.2), vec3(0.0,0.0,-0.2), vec4(0.1, -3.6, 6.0, 1.0),
-                  6.0, vec4(1.0, 0.5, 0.0, 1.0)). //Top piece
-                               initCylinder(position, vec3(0.0,0.0,0.39), vec3(0.0,0.0,-0.39), vec4(0.1, -3.66, 6.0, 1.0),
-                  6.0, vec4(1.0, 0.5, 0.0, 1.0))); //Top main bit);
-    top = OBJintersect(top,Boxes[5]);
-    top = OBJdifference(top,Cones[5]);
-    top = OBJdifference(top,Boxes[6]);
-	top = OBJdifference(top,Boxes[7]);
-    top = OBJdifference(top,Cones[8]);
-	top = OBJdifference(top,Boxes[8]);
-    top = OBJdifference(top,Cylinders[9]);
-     top = OBJdifference(top,Cylinders[10]);
+                  6.0, vec4(1.0, 0.5, 0.0, 1.0)), // Top piece
+                  initCylinder(position, vec3(0.0,0.0,0.39), vec3(0.0,0.0,-0.39), vec4(0.1, -3.66, 6.0, 1.0),
+                  6.0, vec4(1.0, 0.5, 0.0, 1.0))); // Top main bit);
+    top = OBJintersect(top, initBox(position, vec3(2.3, 1.0, 0.9), vec4(0.0, 1.74, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0))); // Orange body base cuttoff negative
+    top = OBJdifference(top,initCone(position, vec3(0.0,0.0,0.0), vec3(1.6,0.0,0.0), vec4(-.78, 1.0, 6.0, 1.0),
+                  0.7, 0.2, vec4(1.0, 0.5, 0.0, 1.0))); // orage top front slant negative
+    top = OBJdifference(top,initBox(position, vec3(0.7, 0.5, 0.9), vec4(-1.76, 1.33, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0))); // orange body wheel negative
+	top = OBJdifference(top,initBox(position, vec3(0.7, 0.5, 0.9), vec4(0.4, 0.6, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0)));
+    top = OBJdifference(top,initCone(position, vec3(0.0,0.0,0.0), vec3(0.3,-0.7,0.0), vec4(0.48, 0.83, 6.0, 1.0),
+                  0.8, 0.8, vec4(1.0, 0.5, 0.0, 1.0))); // orage top front slant negative
+	top = OBJdifference(top,initBox(position, vec3(0.5, 0.8, 0.9), vec4(2.0, 0.6, 6.0, 1.0),
+                  vec4(1.0, 0.5, 0.0, 1.0)));
+    top = OBJdifference(top,initCylinder(position, vec3(0.5,0.5,0.0), vec3(-0.8,-0.2,0.0), vec4(2.44, 1.36, 5.4, 1.0),
+                  0.35, vec4(1.0, 0.5, 0.0, 1.0))); // orange body Back Wheel cover negative left
+    top = OBJdifference(top,initCylinder(position, vec3(0.5,0.5,0.0), vec3(-0.8,-0.2,0.0), vec4(2.44, 1.36, 6.6, 1.0),
+                  0.35, vec4(1.0, 0.5, 0.0, 1.0))); // orange body Back Wheel cover negative right
 
-                 //windows
+    
+    // windows
     sColoredObj windows = OBJunion(initSphere(vec4(2.6, 1.0, 6.0,0.0), 0.15, // back wheel cap
-                  vec4(1.0), position), Capsules[0]);
-    windows = OBJunion(windows, Capsules[1]);
-    windows = OBJdifference(windows, Boxes[9]);
-    windows = OBJdifference(windows, Boxes[10]);
-    windows = OBJdifference(windows, Cones[6]);
-    windows = OBJdifference(windows, Cones[7]);
+                  vec4(1.0), position), 
+                  initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.4, 1.8, 5.45, 1.0), 
+                  0.3, vec4(0.0))); // right window
+    windows = OBJunion(windows, initCapsule(position, vec3(0.5, 0.0, 0.0), vec3(-0.5, 0.0, 0.0), vec4(-0.47, 1.8, 6.45, 1.0), 
+                0.3, vec4(0.0))); //left window
+    windows = OBJdifference(windows, initBox(position, vec3(1.3, 0.8, 1.25), vec4(-0.4, 0.99, 5.55, 1.0),
+                  vec4(0))); // Window lower cutoff
+    windows = OBJdifference(windows, initBox(position, vec3(1.3, 0.8, 1.25), vec4(1.2, 1.5, 5.55, 1.0),
+                  vec4(0))); // Window back cutoff
+    windows = OBJdifference(windows, initCone(position, vec3(0.0,0.0,0.0), vec3(1.2,0.0,0.0), vec4(-1.3, 2.4, 5.45, 1.0),
+                  0.6, 0.3, vec4(0.0))); // window left slant negative
+    windows = OBJdifference(windows, initCone(position, vec3(0.0,0.0,0.0), vec3(1.2,0.0,0.0), vec4(-1.3, 2.4, 6.45, 1.0),
+                  0.6, 0.3, vec4(0.0))); // window right slant negative
 	
-                 //trail
-    sColoredObj trail = OBJdifference( Boxes[11], initCylinder(position, vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), vec4(2.6, 1.0, 6.0, 1.0),
+    // trail
+    sColoredObj trail = OBJdifference( initBox(position, vec3(500.0, 0.8, 0.1), vec4(502.6, 1.0, 6.0, 1.0),
+                  vec4(mix(vec4(1.0),vec4(1.0, 0.5, 0.0, 1.0),position.y / 0.8))), // trail
+    initCylinder(position, vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), vec4(2.6, 1.0, 6.0, 1.0),
                   0.8, vec4(0.0)));
     d = OBJunion(d, trail);
 
 
-    //back wheel
+    // back wheel
     sColoredObj wheel = OBJdifference(initTorus(position, vec2(0.8,0.19), vec4(2.6, 1.0, 6.0, 1.0), vec4(1.0, 0.5, 0.0, 1.0)),
                   initCylinder(position, vec3(0.0, 0.0, 0.4), vec3(0.0, 0.0, -0.4), vec4(2.6, 1.0, 6.0, 1.0),
-                  0.7, vec4(1.0, 0.5, 0.0, 1.0))); //Back Wheel Negative Space
+                  0.7, vec4(1.0, 0.5, 0.0, 1.0))); // Back Wheel Negative Space
     wheel = OBJunion(wheel, initCylinder(position, vec3(0.0, 0.0, 0.02), vec3(0.0, 0.0, -0.02), vec4(2.6, 1.0, 6.0, 1.0),
-                  0.7, vec4(0.0))); //Back Wheel black
+                  0.7, vec4(0.0))); // Back Wheel black
     d = OBJunion(d, initSphere(vec4(2.6, 1.0, 6.0,0.0), 0.15, // back wheel cap
                   vec4(1.0), position));
+                       
+    //combining subobjects
     d = OBJunion(d, wheel);
     d = OBJunion(d, top);
 	d = OBJunion(d, windows);
-    d = OBJunion(d, planeDistance);
-    
-    /* 
-    Capsules[0] = initCapsule(position, vec3(0.0, -0.0, 0.0), vec3(-0.0, 1.0, 0.0), vec4(-3.0, 1.0, 5.6, 1.0), 
-                0.2, vec4(0.0, 1.0, 0.0, 1.0), 0);
-    Ellipsoids[0] = initEllipsoid(position, vec3(0.2, 0.3, 0.4), vec4(-3.0, 3.0, 5.6, 1.0), 
-                                  vec4(0.0, 0.0, 1.0, 1.0), 0);
-    */
-    //assign color
-	color = d.color;
-    
-    return d.dist;
+    d = OBJunion(d, initPlane(vec4(1.0),position));
+        
+    return d;
 }
 
 // RayMarching Function: Draws scene by getting a distance for every object in the scene from the 
@@ -385,37 +337,37 @@ float renderScene(vec3 position, out vec4 color)
 //    marchingDirection: ray direction
 //    start:             Minimum distance ray can travel while searching for Objects
 //    end:               Maximum distance ray can travel while searching for Objects
-float shortestDistanceToSurface(out vec4 color, vec3 eye, vec3 marchingDirection, float start, float end) {
+sColoredObj shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float start, float end) {
     //credit to https://www.shadertoy.com/view/4tcGDr
-    
+    sColoredObj dist;
     float depth = start;
     for (int i = 0; i < MAX_STEPS; i++) {
-        float dist = renderScene(eye + depth * marchingDirection, color);
-        if (dist < SURF_DIST) {
-			return depth;
+        dist = renderScene(eye + depth * marchingDirection);
+        if (dist.dist < SURF_DIST) {
+            dist.dist = depth;
+			return dist;
         }
-        depth += dist;
+        depth += dist.dist;
         if (depth >= end) {
-            return end;
+            dist.dist = end;
+			return dist;
         }
     }
-    return end;
+    dist.dist = end;
+	return dist;
 }
 
 // getNormal: Calculate normal for given rat
 //    p: A ray created using ray marching
-vec3 getNormal(vec3 p){
-    
-    vec4 color;//placeholder, not needed for this.
-    
-    
-    float d = renderScene(p,color);
+vec3 getNormal(vec3 p)
+{  
+    float d = renderScene(p).dist;
     vec2 e = vec2(0.01, 0.0);
     
     vec3 n = d - vec3(
-    renderScene(p - e.xyy,color),
-    renderScene(p - e.yxy,color),
-    renderScene(p - e.yyx,color));
+    renderScene(p - e.xyy).dist,
+    renderScene(p - e.yxy).dist,
+    renderScene(p - e.yyx).dist);
     
     return normalize(n);
 }
