@@ -1,6 +1,24 @@
-// Basic Rotation matrix for any axis
+/*
+	Copyright 2020 Demetrius J Nekos
+	Copyright 2020 Nathan Boisvert
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+		http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+// rotationMatrix: Basic Rotation matrix for any axis
+//    angle: the vector, in radians, to be translated into a matrix
 mat3 rotationMatrix(in vec2 angle)
 {
+    //credit to wikipedia for matrix
+    
     float sa = sin(angle.x);
     float ca = cos(angle.x);
     float sb = sin(-angle.y);
@@ -17,19 +35,19 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec2 uv = (fragCoord - 0.5*iResolution.xy)/iResolution.y;
     vec2 camuv = fragCoord / iResolution.xy; // used for sampling camera channels
     
+    // default cam position + position gotten from inputs
     vec3 rayOrigin = vec3(0.0, 1.0, 0.0) + texture(iChannel0,uv).xyz;
+    // default coords * mouse angle (put through rotation matrix
     vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0)) * rotationMatrix(texture(iChannel1,uv).xy * 3.14159);
-    
-    // output that will be given a color based on what object it hits
-    vec4 color;
-    
+        
     // distance from viewport to whatever the ray hits
     sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST);
     	
     // point on object surface
     vec3 point = rayOrigin + dist.dist * rayDirection;
     
-	vec4 color = dist.color;
+	vec4 color = dist.color; // set color
+    // add pointlights
     color = calcLighting ( vec3(2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
                     getNormal(point),  rayOrigin, point-rayOrigin,color)
         + calcLighting ( vec3(-2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
@@ -42,6 +60,5 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
         + calcLighting ( vec3(9.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
                     getNormal(point),  rayOrigin, point-rayOrigin,color);;;;
 
-    
     fragColor = color;
 }

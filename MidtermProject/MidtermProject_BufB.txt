@@ -1,24 +1,46 @@
+/*
+	Copyright 2020 Demetrius J Nekos
+	Copyright 2020 Nathan Boisvert
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+		http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+/*
+    Credit to Andrew Hunt for advice on keyboard controls
+*/
+
 //Sets up mouse interactivity
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
+    // get uv
     vec2 invReso = 1.0 / iResolution.xy;	
     vec2 uv = fragCoord * invReso;
 
+    // sample previous mouse coordinate
     vec4 mouse = texture(iChannel1,uv);
     vec2 mousecurrent = mouse.xy;
     vec2 mouseclick = mouse.zw;
     
-    if (iMouse.z >= 0.0)
+    if (iMouse.z >= 0.0) // if mouse down
     {
-        vec2 newmouse = iMouse.xy * invReso;
+        vec2 newmouse = iMouse.xy * invReso; // take in new mouse variables
         vec2 newclick = iMouse.zw * invReso;
         
+        // get centralized distance of mouse to clicked coord
         vec2 mousefromclick = (newmouse - 0.5) - (newclick - 0.5);
-        vec2 radian = mouseclick - mousefromclick;
+        vec2 radian = mouseclick - mousefromclick; // get difference from last frame
 		fragColor = vec4(radian, mouseclick);
     }
     else
     {
-        fragColor = vec4(mousecurrent, mousecurrent);
+        fragColor = vec4(mousecurrent, mousecurrent); // unchanged, return last frame
     }
 }
