@@ -36,7 +36,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec2 camuv = fragCoord / iResolution.xy; // used for sampling camera channels
     
     // default cam position + position gotten from inputs
-    vec3 rayOrigin = vec3(0.0, 1.0, 0.0) + texture(iChannel0,uv).xyz;
+    vec3 rayOrigin = vec3(-0.2, 3.0, 2.0) + texture(iChannel0,uv).xyz;
     // default coords * mouse angle (put through rotation matrix
     vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0)) * rotationMatrix(texture(iChannel1,uv).xy * 3.14159);
         
@@ -47,17 +47,10 @@ sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, 
     
 	vec4 color = dist.color; // set color
     // add pointlights
-    color = calcLighting ( vec3(2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
+    color = calcLighting ( vec3(0.0, 5.0, 1.0),  vec4(1.0),  20.0,  point,
                     getNormal(point),  rayOrigin, point-rayOrigin,color)
-        + calcLighting ( vec3(-2.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
-                    getNormal(point),  rayOrigin, point-rayOrigin,color)
-        + calcLighting ( vec3(-2.0, 2.0, 0.0),  vec4(1.0),  10.0,  point,
-                    getNormal(point),  rayOrigin, point-rayOrigin,color)
-        + calcLighting ( vec3(-2.0, 2.0, 12.0),  vec4(1.0),  10.0,  point,
-                    getNormal(point),  rayOrigin, point-rayOrigin,color)
-
-        + calcLighting ( vec3(9.0, 2.0, 6.0),  vec4(1.0),  10.0,  point,
-                    getNormal(point),  rayOrigin, point-rayOrigin,color);;;;
+        + calcLighting ( vec3(3.0, 5.0, 9.0),  vec4(1.0),  20.0,  point,
+                    getNormal(point),  rayOrigin, point-rayOrigin,color);
 
     fragColor = color;
 }
