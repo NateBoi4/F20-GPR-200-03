@@ -41,8 +41,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 rayDirection = normalize(vec3(uv.x, uv.y, 1.0)) * rotationMatrix(texture(iChannel1,uv).xy * 3.14159);
         
     // distance from viewport to whatever the ray hits
-    sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST);
-    	
+sColoredObj dist = shortestDistanceToSurface(rayOrigin, rayDirection, MIN_DIST, MAX_DIST, iTime);    	
     // point on object surface
     vec3 point = rayOrigin + dist.dist * rayDirection;
     

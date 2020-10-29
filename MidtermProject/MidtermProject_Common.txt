@@ -74,9 +74,9 @@ sColoredObj initSphere(vec4 center, float radius,
 sColoredObj initPlane(vec4 color, vec3 p, float time)
 {
 	sColoredObj plane;
-    p.x = p.x - time;
+    p.x = p.x - time * 10.0;
     vec2 tile_coord = p.xz;
-	float size = 1.0;  // size of the tile
+	float size = 2.5;  // size of the tile
 	float edge = size/16.0; // size of the edge
     float tile_brightness = 0.1; // 0.9 controls the brighness of the face of the tile
     float edge_brightness = 2.0; // 0.5 controls the darkness of the edge
@@ -334,7 +334,7 @@ sColoredObj renderScene(vec3 position, float time)
     d = OBJunion(d, wheel);
     d = OBJunion(d, top);
 	d = OBJunion(d, windows);
-    d = OBJunion(d, initPlane(vec4(1.0),position, time));
+    d = OBJunion(d, initPlane(vec4(1.0), position - vec3(0.08).y, time));
         
     return d;
 }
