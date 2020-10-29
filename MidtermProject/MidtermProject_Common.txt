@@ -1,7 +1,19 @@
-// Work by Demetrius Nekos and Nathan Boisvert
+/*
+	Copyright 2020 Demetrius J Nekos
+	Copyright 2020 Nathan Boisvert
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+		http://www.apache.org/licenses/LICENSE-2.0
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
 // This common tab is responsible for holding all functions and structs relevent to the overall project
 // This tab also contains the code for the main implementations of lighting, ray marching, and scene rendering
-// 
 
 #define MAX_STEPS 150
 #define MAX_DIST 150.0
@@ -101,18 +113,28 @@ sColoredObj initCylinder(vec3 position, vec3 top, vec3 bottom, vec4 center,
 {
 	sColoredObj cylinder;
 	cylinder.color = color;
+    //Get full length of object
     vec3  bottomToTop = bottom - top;
+    //Get length of object from any sample point to the top
     vec3  positionToTop = (position - center.xyz) - top;
-    float fullLength = dot(bottomToTop, bottomToTop);
-    float currentLength = dot(positionToTop, bottomToTop);
-    float x = length(positionToTop * fullLength - bottomToTop * currentLength) - radius * fullLength;
-    float y = abs(currentLength - fullLength * 0.5) - fullLength * 0.5;
-    float x2 = x * x;
-    float y2 = y * y * fullLength;
+    //Length of Object as float
+    float sFullLength = dot(bottomToTop, bottomToTop);
+    //Length from sample point to top as a float
+    float sCurrentLength = dot(positionToTop, bottomToTop);
     
+    //Width of the object
+    float x = length(positionToTop * sFullLength - bottomToTop * sCurrentLength) - radius * sFullLength;
+    //Height of the object
+    float y = abs(sCurrentLength - sFullLength * 0.5) - sFullLength * 0.5;
+    // x squared
+    float x2 = x * x;
+    // y squared times full length
+    float y2 = y * y * sFullLength;
+    
+    //Shortest distance
     float d = (max(x, y) < 0.0) ? -min(x2, y2) : (((x > 0.0) ? x2 : 0.0) + ((y > 0.0) ? y2 : 0.0));
     
-    cylinder.dist = sign(d) * sqrt(abs(d)) / fullLength;
+    cylinder.dist = sign(d) * sqrt(abs(d)) / sFullLength;
 	return cylinder;
 }
 
@@ -132,19 +154,23 @@ sColoredObj initCone(vec3 position, vec3 top, vec3 bottom, vec4 center, float to
 {
 	sColoredObj cone;
 	cone.color = color;
+    //Get radius of middle point in object
     float middleRadius  = bottomRadius - topRadius;
+    //Get full length of object
     float bottomFromTop = dot(bottom - top, bottom - top);
+    //Get length of Object from any point on object to the top
     float positionFromTop = dot((position - center.xyz) - top, (position - center.xyz) - top);
+    //Get point of intersection from sample point to midway point
     float positionIntersect = dot((position - center.xyz) - top, bottom - top) / bottomFromTop;
-
+	
     float x = sqrt( positionFromTop - positionIntersect * positionIntersect * bottomFromTop );
-
+	
     float topx = max(0.0, x - ((positionIntersect < 0.5) ? topRadius : bottomRadius));
     float topy = abs(positionIntersect - 0.5) - 0.5;
-
+	 
     float k = middleRadius * middleRadius + bottomFromTop;
     float f = clamp( (middleRadius * (x - topRadius) + positionIntersect * bottomFromTop) / k, 0.0, 1.0 );
-
+	
     float bottomx = x - topRadius - f * middleRadius;
     float bottomy = positionIntersect - f;
     
@@ -186,7 +212,10 @@ sColoredObj initTorus( vec3 position, vec2 toroid, vec4 center, vec4 color)
     sColoredObj torus;
     torus.color = color;
     
+    //Sets up a coordinate space inside a disk object to expand from the center point by the dimensions of the toroid
+    //First expands by the x-direction
     vec2 innerDistance = vec2(length((position.xy - center.xy)) - toroid.x,(position.z - center.z));
+    //Expands by the y-direction
     torus.dist = length(innerDistance) - toroid.y;
     return torus;
 }
@@ -207,7 +236,9 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
     sColoredObj capsule;
     capsule.color = color;
     
+    //Length of Object from point being sampled, full length of object
     vec3 topFromPosition = (position - center.xyz) - top, topFromBottom = bottom - top;
+    //Gets height of object at any point on the object from sample point
     float height = clamp( dot(topFromPosition, topFromBottom)
                          / dot(topFromBottom, topFromBottom), 0.0, 1.0 );
     capsule.dist = length( topFromPosition - topFromBottom * height ) - radius;
@@ -315,7 +346,7 @@ sColoredObj renderScene(vec3 position, float time)
 	
     // trail
     sColoredObj trail = OBJdifference( initBox(position, vec3(500.0, 0.8, 0.1), vec4(502.6, 1.0, 6.0, 1.0),
-                  vec4(mix(vec4(1.0),vec4(1.0, 0.5, 0.0, 1.0),position.y / 0.8))), // trail
+                  vec4(mix(vec4(1.0),vec4(1.0, 0.7, 0.0, 1.0),position.y / 0.8))), // trail
     initCylinder(position, vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, -1.0), vec4(2.6, 1.0, 6.0, 1.0),
                   0.8, vec4(0.0)));
     d = OBJunion(d, trail);
@@ -339,7 +370,7 @@ sColoredObj renderScene(vec3 position, float time)
     return d;
 }
 
-// RayMarching Function: Draws scene by getting a distance for every object in the scene from the 
+// shortestDistanceToSurface: Draws scene by getting a distance for every object in the scene from the 
 //                       Calculated position found from ray origin and ray direction
 //    color:             Output color
 //    eye:               ray origin
