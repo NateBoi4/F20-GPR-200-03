@@ -218,7 +218,8 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
 //    Color:    Output color
 // Sets up scene for model rendering by creating containers for Objects and using distance functions
 // to fill containers with data for each object being rendered in scene. Also uses union, difference,
-// and intersection functions to determine if space is being displayed, negated, or conjoined   
+// and intersection functions to determine if space is being displayed, negated, or conjoined 
+// Model reference: https://sketchfab.com/3d-models/classic-tron-lightcycle-a9eae73385234105b548b0e35a3e63a4
 sColoredObj renderScene(vec3 position)
 {
 
@@ -365,6 +366,13 @@ sColoredObj shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float st
 
 // getNormal: Calculate normal for given rat
 //    p: A ray created using ray marching
+// "ShaderToy Tutorial - Ray Marching for Dummies!" 
+// by Martijn Steinrucken aka BigWings/CountFrolic - 2018
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+// This shader is part of a tutorial on YouTube
+// https://youtu.be/PGtv-dBi2wE
+// https://www.shadertoy.com/view/XlGBW3
 vec3 getNormal(vec3 p)
 {  
     float d = renderScene(p).dist;
