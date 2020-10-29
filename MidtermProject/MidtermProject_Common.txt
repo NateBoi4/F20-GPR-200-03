@@ -71,9 +71,10 @@ sColoredObj initSphere(vec4 center, float radius,
 // color: color of plane (used as grid in this instance)
 // Grid design inspired from theraot on shadertoy
 // https://www.shadertoy.com/view/wljXRh
-sColoredObj initPlane(vec4 color, vec3 p)
+sColoredObj initPlane(vec4 color, vec3 p, float time)
 {
 	sColoredObj plane;
+    p.x = p.x - time;
     vec2 tile_coord = p.xz;
 	float size = 1.0;  // size of the tile
 	float edge = size/16.0; // size of the edge
@@ -221,7 +222,7 @@ sColoredObj initCapsule( vec3 position, vec3 top, vec3 bottom, vec4 center,
 // to fill containers with data for each object being rendered in scene. Also uses union, difference,
 // and intersection functions to determine if space is being displayed, negated, or conjoined 
 // Model reference: https://sketchfab.com/3d-models/classic-tron-lightcycle-a9eae73385234105b548b0e35a3e63a4
-sColoredObj renderScene(vec3 position)
+sColoredObj renderScene(vec3 position, float time)
 {
 
     // use Logic to build the correct distance
@@ -333,7 +334,7 @@ sColoredObj renderScene(vec3 position)
     d = OBJunion(d, wheel);
     d = OBJunion(d, top);
 	d = OBJunion(d, windows);
-    d = OBJunion(d, initPlane(vec4(1.0),position));
+    d = OBJunion(d, initPlane(vec4(1.0),position, time));
         
     return d;
 }
@@ -345,12 +346,12 @@ sColoredObj renderScene(vec3 position)
 //    marchingDirection: ray direction
 //    start:             Minimum distance ray can travel while searching for Objects
 //    end:               Maximum distance ray can travel while searching for Objects
-sColoredObj shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float start, float end) {
+sColoredObj shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float start, float end, float time) {
     //credit to https://www.shadertoy.com/view/4tcGDr
     sColoredObj dist;
     float depth = start;
     for (int i = 0; i < MAX_STEPS; i++) {
-        dist = renderScene(eye + depth * marchingDirection);
+        dist = renderScene(eye + depth * marchingDirection, time);
         if (dist.dist < SURF_DIST) {
             dist.dist = depth;
 			return dist;
@@ -376,13 +377,13 @@ sColoredObj shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float st
 // https://www.shadertoy.com/view/XlGBW3
 vec3 getNormal(vec3 p)
 {  
-    float d = renderScene(p).dist;
+    float d = renderScene(p, 0.0).dist;
     vec2 e = vec2(0.01, 0.0);
     
     vec3 n = d - vec3(
-    renderScene(p - e.xyy).dist,
-    renderScene(p - e.yxy).dist,
-    renderScene(p - e.yyx).dist);
+    renderScene(p - e.xyy, 0.0).dist,
+    renderScene(p - e.yxy, 0.0).dist,
+    renderScene(p - e.yyx, 0.0).dist);
     
     return normalize(n);
 }
