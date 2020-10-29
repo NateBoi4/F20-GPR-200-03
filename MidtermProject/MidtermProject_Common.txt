@@ -22,7 +22,6 @@ struct sColoredObj
 //    distA: the second volume
 sColoredObj OBJintersect(sColoredObj distA, sColoredObj distB) 
 {
-    //return max(distA, distB);
     if (distA.dist > distB.dist)
         return distA;
     return distB;
@@ -33,7 +32,6 @@ sColoredObj OBJintersect(sColoredObj distA, sColoredObj distB)
 //    distA: the second volume
 sColoredObj OBJunion(in sColoredObj distA, in sColoredObj distB) 
 {
-    //return min(distA, distB);
     if (distA.dist > distB.dist)
         return distB;
     return distA;
@@ -52,10 +50,13 @@ sColoredObj OBJdifference(in sColoredObj distA, in sColoredObj distB)
     return distB;
 }
 
-// createSphere: distance to a given sphere
-//    center: centerpoint of sphere
-//    radius: radius of sphere
-//    p:      sample point
+// initSphere: distance to a given sphere
+//    center: Coordinates to manipulate spheres position in coordinate space. Sets center point of sphere
+//    radius: Holds the radius of the spheres
+//    p:      Coordinate in space that a ray hits a sphere created by this function
+//    color:  Holds the color of the sphere
+// Functions main purpose is to algebraically calculate the distance of any point on the sphere
+// from a position passed into the function and return that distance.
 sColoredObj initSphere(vec4 center, float radius, 
                       vec4 color, vec3 p)
 {
@@ -65,7 +66,7 @@ sColoredObj initSphere(vec4 center, float radius,
     return sphere;
 }
 
-// planeDistance: distance to the plane y = 0
+// initPlane: distance to the plane y = 0
 // p: sample point 
 // color: color of plane (used as grid in this instance)
 // Grid design inspired from theraot on shadertoy
