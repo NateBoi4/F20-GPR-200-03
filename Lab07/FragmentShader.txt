@@ -16,7 +16,24 @@ in vec4 vColor;
 in vec4 vNormal;
 
 //in vec2 vTexcoord;
+
 in vec4 vTexcoord;
+in vec4 vPointLightCenter;
+in vec3 vPointLightColor;
+in float vPointLightIntensity;
+in vec3 vObjectColor;
+in float vAmbientIntensity;
+in vec3 vAmbient;
+in vec3 vObjectPos;
+in vec3 vViewPos;
+in vec3 vLightDirection;
+in float vDiffCo;
+in vec3 vDiffuse;
+in float vSpecularIntensity;
+in vec3 vViewDirection;
+in vec3 vReflectedLightVec;
+in float vSpecCo;
+in vec3 vSpecular;
 
 void main()
 {
@@ -24,10 +41,34 @@ void main()
 	
 	//PER-VERTEX: input is just final color
 	rtFragColor = vColor;
-	//vec4 N = normalize(vNormal);
+	
 	//PER-FRAGMENT: calulate final color here using inputs
+	//vec4 N = normalize(vNormal);
 	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
 	
 	//rtFragColor = vTexcoord;
 	//rtFragColor = vec4(vTexcoord, 0.0, 1.0);
+	
+	/*
+	vec3 color = vObjectColor;
+    float ambientIntensity = vAmbientIntensity;
+    vec3 lightColor = vPointLightColor;
+    vec4 lightCenter = vPointLightCenter;
+    float specularIntensity = vSpecularIntensity;
+    vec3 ambient = ambientIntensity * lightColor;
+    vec4 N = normalize(vNormal);
+    vec3 lightDirection = normalize(lightCenter.xyz - vObjectPos);
+    float diffCo = max(dot(N.xyz, lightDirection), 0.0);
+    vec3 diffuse = diffCo * lightColor;
+    vec3 viewDirection = normalize(vViewPos - vObjectPos);
+    vec3 reflectedLightVec = reflect(-(lightDirection), N.xyz);
+    float specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    vec3 specular = specularIntensity * specCo * lightColor;
+    rtFragColor = vec4((ambient + diffuse + specular) * color, 1.0);
+    */
+	
 }

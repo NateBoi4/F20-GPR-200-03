@@ -32,6 +32,23 @@ out vec4 vNormal;
 //out vec2 vTexcoord;
 out vec4 vTexcoord;
 
+out vec4 vPointLightCenter;
+out vec3 vPointLightColor;
+out float vPointLightIntensity;
+out vec3 vObjectColor;
+out float vAmbientIntensity;
+out vec3 vAmbient;
+out vec3 vObjectPos;
+out vec3 vViewPos;
+out vec3 vLightDirection;
+out float vDiffCo;
+out vec3 vDiffuse;
+out float vSpecularIntensity;
+out vec3 vViewDirection;
+out vec3 vReflectedLightVec;
+out float vSpecCo;
+out vec3 vSpecular;
+
 struct pointLight
 {
 	vec4 center;
@@ -102,10 +119,11 @@ void main()
 	//PER-VERTEX: calculate and output final color
 	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
 	
+	
+	
 	// VIEW-SPACE PHONG REFLECTION
 	/*
 	vec3 color = vec3(1.0, 0.0, 0.0);
-    color *= mat3(modelViewMat);
     float ambientIntensity = 0.3;
     ambientIntensity *= float(modelViewMat);
     vec3 ambient = ambientIntensity * pointLight.color;
@@ -133,6 +151,7 @@ void main()
     vColor = vec4((ambient + diffuse + specular) * color, 1.0);
     */
     
+    //*
     // OBJECT-SPACE PHONG REFLECTION
     vec3 color = vec3(1.0, 0.0, 0.0);
     float ambientIntensity = 0.3;
@@ -151,6 +170,8 @@ void main()
     specCo *= specCo;
     vec3 specular = specularIntensity * specCo * pointLight.color;
     vColor = vec4((ambient + diffuse + specular) * color, 1.0);
+    
+    /*/
 	
 	//PER-FRAGMENT: pass things that FS needs to calculate final color
 	//vNormal = vec4(aNormal, 0.0);
@@ -159,6 +180,36 @@ void main()
 	
 	//vTexcoord = aTexcoord;
 	vTexcoord = uv_atlas;
+	
+	/*
+	// VIEW-SPACE PHONG REFLECTION
+	vPointLightCenter = pointLight.center;
+	vPointLightCenter *= modelViewMat;
+	vPointLightColor = pointLight.color;
+	vPointLightColor *= mat3(modelViewMat);
+	vObjectColor = color;
+	//vObjectColor *= mat3(modelViewMat);
+	vAmbientIntensity = ambientIntensity;
+	vAmbientIntensity *= float(modelViewMat);
+	vObjectPos = pos_camera.xyz;
+	vObjectPos *= mat3(modelViewMat);
+	vViewPos = viewPos;
+	vViewPos *= mat3(modelViewMat);
+	vSpecularIntensity = specularIntensity;
+	vSpecularIntensity *= float(modelViewMat);
+	*/
+	
+	//OBJECT-SPACE PHONG REFLECTION
+	/*
+	vPointLightCenter = pointLight.center;
+	vPointLightColor = pointLight.color;
+	vObjectColor = color;
+	vAmbientIntensity = ambientIntensity;
+	vObjectPos = pos_camera.xyz;
+	vViewPos = viewPos;
+	vSpecularIntensity = specularIntensity;
+	*/
+	
 	
 	//gl_Position = uProjMat * modelViewMat * aTexcoord;
 	
