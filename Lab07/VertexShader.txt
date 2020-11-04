@@ -93,31 +93,6 @@ void main()
     pointLight.color *= mat3(modelViewMat);
     pointLight.intensity *= float(modelViewMat);
     
-    vec3 color = vec3(1.0, 0.0, 0.0);
-    color *= mat3(modelViewMat);
-    float ambientIntensity = 0.3;
-    ambientIntensity *= float(modelViewMat);
-    vec3 ambient;
-    ambient *= mat3(modelViewMat);
-    ambient = ambientIntensity * pointLight.color;
-    vec3 norm = normalize(norm_camera);
-    vec3 lightDirection = normalize(pointLight.center.xyz - pos_camera.xyz);
-    float diffCo = max(dot(norm, lightDirection), 0.0);
-    vec3 diffuse = diffCo * pointLight.color;
-    //diffuse *= mat3(modelViewMat);
-    float specularIntensity = 0.5;
-    specularIntensity *= float(modelViewMat);
-    vec3 viewDirection = normalize(viewPos - pos_camera.xyz);
-    vec3 reflectedLightVec = reflect(-(lightDirection), norm);
-    float specCo;
-    specCo *= float(modelViewMat);
-    specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    vec3 specular = specularIntensity * specCo * pointLight.color;
-    
 	
 	// OPTIONAL: set varyings
 	//vColor = vec4(1.0, 0.5, 0.0, 1.0);
@@ -126,6 +101,56 @@ void main()
 	
 	//PER-VERTEX: calculate and output final color
 	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
+	
+	// VIEW-SPACE PHONG REFLECTION
+	/*
+	vec3 color = vec3(1.0, 0.0, 0.0);
+    color *= mat3(modelViewMat);
+    float ambientIntensity = 0.3;
+    ambientIntensity *= float(modelViewMat);
+    vec3 ambient = ambientIntensity * pointLight.color;
+    ambient *= mat3(modelViewMat);
+    vec3 norm = normalize(norm_camera);
+    vec3 lightDirection = normalize(pointLight.center.xyz - pos_camera.xyz);
+    float diffCo = max(dot(norm, lightDirection), 0.0);
+    vec3 diffuse = diffCo * pointLight.color;
+    diffuse *= mat3(modelViewMat);
+    float specularIntensity = 0.5;
+    specularIntensity *= float(modelViewMat);
+    vec3 viewDirection = normalize(viewPos - pos_camera.xyz);
+    viewDirection *= mat3(modelViewMat);
+    vec3 reflectedLightVec = reflect(-(lightDirection), norm);
+    //reflectedLightVec *= mat3(modelViewMat);
+    float specCo;
+    specCo *= float(modelViewMat);
+    specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    vec3 specular = specularIntensity * specCo * pointLight.color;
+    specular *= mat3(modelViewMat);
+    vColor = vec4((ambient + diffuse + specular) * color, 1.0);
+    */
+    
+    // OBJECT-SPACE PHONG REFLECTION
+    vec3 color = vec3(1.0, 0.0, 0.0);
+    float ambientIntensity = 0.3;
+    vec3 ambient = ambientIntensity * pointLight.color;
+    vec3 norm = normalize(norm_camera);
+    vec3 lightDirection = normalize(pointLight.center.xyz - pos_camera.xyz);
+    float diffCo = max(dot(norm, lightDirection), 0.0);
+    vec3 diffuse = diffCo * pointLight.color;
+    float specularIntensity = 0.5;
+    vec3 viewDirection = normalize(viewPos - pos_camera.xyz);
+    vec3 reflectedLightVec = reflect(-(lightDirection), norm);
+    float specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    vec3 specular = specularIntensity * specCo * pointLight.color;
+    vColor = vec4((ambient + diffuse + specular) * color, 1.0);
 	
 	//PER-FRAGMENT: pass things that FS needs to calculate final color
 	//vNormal = vec4(aNormal, 0.0);
@@ -137,7 +162,5 @@ void main()
 	
 	//gl_Position = uProjMat * modelViewMat * aTexcoord;
 	
-               
-    vColor = vec4((ambient + diffuse + specular) * color, 1.0);
 	
 }
