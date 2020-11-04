@@ -88,34 +88,6 @@ void phongColor(out vec3 C, in float IA, in vec3 CA,
 
 void main()
 {
-	
-	pointLight pointLight;
-    initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 100.0);
-    
-    float alpha = 1.0;
-    float ambientIntensity = 0.2;
-    vec3 ambientColor = vec3(0.0, 0.7, 1.0);
-	
-	float diffCo;
-    float atten;
-    float diffInt;
-	float specCo;
-    float highEx = 2.0;
-    float specInt;
-    vec3 phong;
-    
-    vec3 lightVector = 
-            normalize(pointLight.center.xyz - aPosition.xyz);
-            //(pointLight.center.xyz - position) * inversesqrt(lenSq((pointLight.center.xyz - position)));
-	
-	float dist = distance(pointLight.center.xyz, aPosition.xyz);
-	
-	vec3 viewVector = 
-            normalize(vec3(0.0) - aPosition.xyz);
-            //(rayOrigin.xyz - position) * inversesqrt(lenSq((rayOrigin.xyz - position)));
-	
-	vec3 reflectedLightVec = reflect(-(lightVector), vNormal.xyz);
-	
 	// REQUIRED: set this value:
 	// problem: gl_position is in "clip-space"
 	// problem: aPosition is in "object-space"
@@ -152,6 +124,49 @@ void main()
 						 0.25, 0.25, 0.0, 1.0);
 	vec4 uv_atlas = atlasMat * aTexcoord;
 	
+	// LIGHTING PIPELINE
+	pointLight pointLight;
+    initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 10.0);
+    pointLight.center *= modelViewMat;
+    pointLight.color *= mat3(modelViewMat);
+    pointLight.intensity *= float(modelViewMat);
+    
+    float ambientIntensity = 0.2;
+    float view_ambientIntensity = float(modelViewMat) * ambientIntensity;
+    vec3 ambientColor = vec3(0.0, 0.7, 1.0);
+    vec3 view_ambientColor = mat3(modelViewMat) * ambientColor;
+	
+	float diffCo;
+	float view_diffCo = float(modelViewMat) * diffCo;
+	float atten;
+	float view_atten = float(modelViewMat) * atten;
+    float diffInt;
+    float view_diffInt = float(modelViewMat) * diffInt;
+	float specCo;
+	float view_specCo = float(modelViewMat) * specCo;
+    float highEx = 2.0;
+    float view_highEx = float(modelViewMat) * highEx;
+    float specInt;
+    float view_specInt = float(modelViewMat) * specInt;
+    vec3 phong;
+    vec3 view_phong = mat3(modelViewMat) * phong;
+    
+    vec3 lightVector = 
+            normalize(pointLight.center.xyz - pos_camera.xyz);
+            //(pointLight.center.xyz - position) * inversesqrt(lenSq((pointLight.center.xyz - position)));
+	vec3 view_lightVector = mat3(modelViewMat) * lightVector;
+	
+	float dist = distance(pointLight.center.xyz, pos_camera.xyz);
+	float view_dist = float(modelViewMat) * dist;
+	
+	vec3 viewVector = 
+            normalize(vec3(0.0) - pos_camera.xyz);
+            //(rayOrigin.xyz - position) * inversesqrt(lenSq((rayOrigin.xyz - position)));
+	vec3 view_viewVector = mat3(modelViewMat) * viewVector;
+	
+	vec3 reflectedLightVec = reflect(-(lightVector), norm_camera);
+	vec3 view_refLightVec = mat3(modelViewMat) * reflectedLightVec;
+	
 	// OPTIONAL: set varyings
 	//vColor = vec4(1.0, 0.5, 0.0, 1.0);
 	
@@ -170,22 +185,22 @@ void main()
 	//gl_Position = uProjMat * modelViewMat * aTexcoord;
 	
 	//Phong Reflectance
-	diffuseCoefficient(diffCo, vNormal.xyz, lightVector);
+	diffuseCoefficient(view_diffCo, vNormal.xyz, view_lightVector);
         
-    attenuation(atten, dist, pointLight);
+    attenuation(view_atten, view_dist, pointLight);
         
-    diffuseIntensity(diffInt, diffCo, atten);
+    diffuseIntensity(view_diffInt, view_diffCo, view_atten);
     
-    specularCoefficient(specCo, viewVector, reflectedLightVec);
+    specularCoefficient(view_specCo, view_viewVector, view_refLightVec);
         
-    highlightExponent(highEx);
+    highlightExponent(view_highEx);
         
-    specularIntensity(specInt, specCo, highEx);
+    specularIntensity(view_specInt, view_specCo, view_highEx);
         
-    phongColor(phong, ambientIntensity, ambientColor, 
-               diffInt, vec3(0.5, 0.5, 0.5), 
-               specInt, vec3(1.0, 1.0, 1.0), pointLight);
+    phongColor(view_phong, view_ambientIntensity, view_ambientColor, 
+               view_diffInt, mat3(modelViewMat) * vec3(0.5, 0.5, 0.5), 
+               view_specInt, mat3(modelViewMat) * vec3(1.0, 1.0, 1.0), pointLight);
                
-    vColor = vec4(phong, 1.0);
+    vColor = vec4(view_phong, 1.0);
 	
 }
