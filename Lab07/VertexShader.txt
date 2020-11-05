@@ -3,6 +3,7 @@
 // Code by Nathan Boisvert 2020
 // Credit to Daniel Buckstein for providing starter code 2020
 // Credit to www.learnopengl.com for reference to phong reflectance model
+// File is Vertex Shader. Sets up PER-FRAGMENT calculations and implements PER-VERTEX calculations
 
 //MAIN DUTY: PROCESS ATTRIBUTES
 // e.g. 3D position in space
@@ -134,11 +135,12 @@ void main()
 	// LIGHTING PIPELINE
 	//Create and intialize point lights.
 	pointLight lightOne;
-	
 	pointLight lightTwo;
+	pointLight lightThree;
 	
     initPointLight(lightOne, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0));
     initPointLight(lightTwo, vec3(-5.0, -3.0, 0.0), vec3(0.5, 1.0, 0.0));
+    initPointLight(lightThree, vec3(5.0, -6.0, 0.0), vec3(0.2, 0.2, 1.0));
     
     //Set up color of model. Solid color or texture.
     //vec3 color = vec3(1.0, 0.0, 0.0);
@@ -151,6 +153,7 @@ void main()
     //Hold color for calculated lights
     vec4 colOne;
     vec4 colTwo;
+    vec4 colThree;
 	
 	// OPTIONAL: set varyings
 	//vColor = vec4(1.0, 0.5, 0.0, 1.0);
@@ -175,10 +178,14 @@ void main()
 					  
 	vPhongReflectance(colTwo, color, ambientIntensity,
 					  specularIntensity, viewPos, norm_camera, 
-					  pos_camera.xyz, lightTwo);				  
+					  pos_camera.xyz, lightTwo);
+					  
+	vPhongReflectance(colThree, color, ambientIntensity,
+					  specularIntensity, viewPos, aNormal, 
+					  aPosition.xyz, lightThree);  				  
 	
 	//Combine lighting for multiple lights
-	vColor = colOne + colTwo;
+	vColor = colOne + colTwo + colThree;
 	
     //*/
     
@@ -192,9 +199,13 @@ void main()
 	vPhongReflectance(colTwo, color, ambientIntensity,
 					  specularIntensity, viewPos, aNormal, 
 					  aPosition.xyz, lightTwo);
+					  
+	vPhongReflectance(colThree, color, ambientIntensity,
+					  specularIntensity, viewPos, aNormal, 
+					  aPosition.xyz, lightThree);
 	
 	//Combine lighting for multiple lights			  
-	vColor = colOne + colTwo;
+	vColor = colOne + colTwo + colThree;
     
     //*/
 	

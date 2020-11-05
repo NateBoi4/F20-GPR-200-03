@@ -3,6 +3,8 @@
 // Code by Nathan Boisvert 2020
 // Credit to Daniel Buckstein for providing starter code 2020
 // Credit to www.learnopengl.com for reference to phong reflectance model
+// File is Fragment Shader. Implements PER-FRAGMENT calculations and 
+// recieves PER-VERTEX calculations and displays them
 
 #ifdef GL_ES
 precision highp float;
