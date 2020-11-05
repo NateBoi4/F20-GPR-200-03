@@ -1,5 +1,8 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// Credit to Daniel Buckstein for providing starter code 2020
+// Credit to www.learnopengl.com for reference to phong reflectance model
 
 //MAIN DUTY: PROCESS ATTRIBUTES
 // e.g. 3D position in space
@@ -53,6 +56,23 @@ void initPointLight(out pointLight light, in vec3 center, in vec3 color)
     light.color = color;
 }
 
+//Reference for Phong Lighting: https://learnopengl.com/Lighting/Basic-Lighting
+/* 
+vPhongReflectance: Calculates the phong reflectance for a point light on an object
+and returns the color of the model for PER-VERTEX shader.
+phong:			Final returned color.
+objectColor:	Color of the surface of the object being reflected against. A texture in this project.
+ambientInt:		Intensity scalar for ambient light on the model.
+specularInt:	Intensity scalar for specular light on model.
+viewPosition:	Camera position vector.
+N:				Normal vector to the surface of the model.
+objPos:			Position of model in space. Object coordinates.
+light:			Point light being placed on model.
+This function calculates ambient lighting, diffuse lighting, and specular lighting based on inputs
+into the function and combimes them altogether along with the color (or texture) of the model being
+reflected against. This is done with calculations for Phong Reflectance to get light vector,
+normal vector, diffuse coefficient, view vector, reflected light vector, and specular coefficient.
+*/
 void vPhongReflectance(out vec4 phong, in vec3 objectColor, in float ambientInt,
 					  in float specularInt, in vec3 viewPosition, in vec3 N, 
 					  in vec3 objPos, in pointLight light)
@@ -112,16 +132,23 @@ void main()
 	vec4 uv_atlas = atlasMat * aTexcoord;
 	
 	// LIGHTING PIPELINE
+	//Create and intialize point lights.
 	pointLight lightOne;
 	
 	pointLight lightTwo;
 	
     initPointLight(lightOne, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0));
     initPointLight(lightTwo, vec3(-5.0, -3.0, 0.0), vec3(0.5, 1.0, 0.0));
+    
+    //Set up color of model. Solid color or texture.
     //vec3 color = vec3(1.0, 0.0, 0.0);
     vec3 color = texture(uTexture, aTexcoord.xy).rgb;
+    
+    //Set Values for ambient intensity and specular intensity
     float ambientIntensity = 0.1;
     float specularIntensity = 0.9;
+    
+    //Hold color for calculated lights
     vec4 colOne;
     vec4 colTwo;
 	
@@ -134,14 +161,14 @@ void main()
 	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
 	
 	
-	
 	// VIEW-SPACE PHONG REFLECTION
 	/*
-	
+	//Move variables to view-space as necessary
     ambientIntensity *= float(modelViewMat);
     specularIntensity *= float(modelViewMat);
     lightOne.center *= modelViewMat;
     
+    //Calulate lighting
     vPhongReflectance(colOne, color, ambientIntensity,
 					  specularIntensity, viewPos, norm_camera, 
 					  pos_camera.xyz, lightOne);
@@ -150,13 +177,14 @@ void main()
 					  specularIntensity, viewPos, norm_camera, 
 					  pos_camera.xyz, lightTwo);				  
 	
+	//Combine lighting for multiple lights
 	vColor = colOne + colTwo;
 	
     //*/
     
     //*
     // OBJECT-SPACE PHONG REFLECTION
-    
+    //Calulate lighting
     vPhongReflectance(colOne, color, ambientIntensity,
 					  specularIntensity, viewPos, aNormal, 
 					  aPosition.xyz, lightOne);
@@ -164,7 +192,8 @@ void main()
 	vPhongReflectance(colTwo, color, ambientIntensity,
 					  specularIntensity, viewPos, aNormal, 
 					  aPosition.xyz, lightTwo);
-					  
+	
+	//Combine lighting for multiple lights			  
 	vColor = colOne + colTwo;
     
     //*/
@@ -175,15 +204,15 @@ void main()
 	
 	
 	//vTexcoord = aTexcoord;
-	vTexcoord = uv_atlas;
+	//vTexcoord = uv_atlas;
 	
 	
 	// VIEW-SPACE PHONG REFLECTION
 	/*
+	//Varyings are set and modified into view-space
 	vPointLightCenter = lightOne.center;
 	vPointLightCenter *= modelViewMat;
 	vPointLightColor = lightOne.color;
-	vPointLightColor *= mat3(modelViewMat);
 	vObjectColor = color;
 	vAmbientIntensity = ambientIntensity;
 	vAmbientIntensity *= float(modelViewMat);
@@ -196,6 +225,7 @@ void main()
 	
 	//OBJECT-SPACE PHONG REFLECTION
 	/*
+	//Varyings are set in object-space
 	vPointLightCenter = lightOne.center;
 	vPointLightColor = lightOne.color;
 	vObjectColor = color;

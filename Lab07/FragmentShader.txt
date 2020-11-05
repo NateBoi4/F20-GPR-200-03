@@ -1,5 +1,8 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// Credit to Daniel Buckstein for providing starter code 2020
+// Credit to www.learnopengl.com for reference to phong reflectance model
 
 #ifdef GL_ES
 precision highp float;
@@ -41,24 +44,36 @@ void main()
 	//rtFragColor = vec4(vTexcoord, 0.0, 1.0);
 	
 	/*
+	//Phong Relfection
+	//Set up varyings into fragment shader
 	vec3 color = vObjectColor;
     float ambientIntensity = vAmbientIntensity;
     vec3 lightColor = vPointLightColor;
     vec4 lightCenter = vPointLightCenter;
     float specularIntensity = vSpecularIntensity;
+    //Calculate ambient lighting
     vec3 ambient = ambientIntensity * lightColor;
-    vec4 N = normalize(vNormal);
+    vec4 N = normalize(vNormal); //Set normal vector
+    //Calculate light Vector and normalize it
     vec3 lightDirection = normalize(lightCenter.xyz - vObjectPos);
+    //Calculate diffuse coefficient
     float diffCo = max(dot(N.xyz, lightDirection), 0.0);
+    //Calculate diffuse lighting
     vec3 diffuse = diffCo * lightColor;
+    //Calculate view vector and normalize it.
     vec3 viewDirection = normalize(vViewPos - vObjectPos);
+    //Reflect light vector against the normal vector
     vec3 reflectedLightVec = reflect(-(lightDirection), N.xyz);
+    //Calculate specular coefficient
     float specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
+    //Amplify specular coefficient by a power of 16
     specCo *= specCo;
     specCo *= specCo;
     specCo *= specCo;
     specCo *= specCo;
+    //Calculate specular lighting
     vec3 specular = specularIntensity * specCo * lightColor;
+    //Combine lighting methods and apply to object color. Set to Fragment Color.
     rtFragColor = vec4((ambient + diffuse + specular) * color, 1.0);
     //*/
     
