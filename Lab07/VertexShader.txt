@@ -34,36 +34,43 @@ out vec4 vTexcoord;
 
 out vec4 vPointLightCenter;
 out vec3 vPointLightColor;
-out float vPointLightIntensity;
 out vec3 vObjectColor;
 out float vAmbientIntensity;
-out vec3 vAmbient;
 out vec3 vObjectPos;
 out vec3 vViewPos;
-out vec3 vLightDirection;
-out float vDiffCo;
-out vec3 vDiffuse;
 out float vSpecularIntensity;
-out vec3 vViewDirection;
-out vec3 vReflectedLightVec;
-out float vSpecCo;
-out vec3 vSpecular;
 
 struct pointLight
 {
 	vec4 center;
 	vec3 color;
-	float intensity;
 };
 
-void initPointLight(out pointLight light, in vec3 center, in vec3 color, in float intensity)
+void initPointLight(out pointLight light, in vec3 center, in vec3 color)
 {
     light.center = vec4(center, 1.0);
     light.color = color;
-    light.intensity = intensity;
 }
 
-
+void vPhongReflectance(out vec4 phong, in vec3 objectColor, in float ambientInt,
+					  in float specularInt, in vec3 viewPosition, in vec3 N, 
+					  in vec3 objPos, in pointLight light)
+{
+    vec3 ambient = ambientInt * light.color;
+    vec3 norm = normalize(N);
+    vec3 lightDirection = normalize(light.center.xyz - objPos);
+    float diffCo = max(dot(N, lightDirection), 0.0);
+    vec3 diffuse = diffCo * light.color;
+    vec3 viewDirection = normalize(viewPosition - objPos);
+    vec3 reflectedLightVec = reflect(-(lightDirection), N);
+    float specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    specCo *= specCo;
+    vec3 specular = specularInt * specCo * light.color;
+    phong = vec4((ambient + diffuse + specular) * objectColor, 1.0);
+}
 
 void main()
 {
@@ -105,11 +112,10 @@ void main()
 	
 	// LIGHTING PIPELINE
 	pointLight pointLight;
-    initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0), 10.0);
-    pointLight.center *= modelViewMat;
-    pointLight.color *= mat3(modelViewMat);
-    pointLight.intensity *= float(modelViewMat);
-    
+    initPointLight(pointLight, vec3(3.0, 3.0, 0.0), vec3(1.0, 0.5, 0.0));
+    vec3 color = vec3(1.0, 0.0, 0.0);
+    float ambientIntensity = 0.1;
+    float specularIntensity = 0.9;
 	
 	// OPTIONAL: set varyings
 	//vColor = vec4(1.0, 0.5, 0.0, 1.0);
@@ -123,55 +129,25 @@ void main()
 	
 	// VIEW-SPACE PHONG REFLECTION
 	/*
-	vec3 color = vec3(1.0, 0.0, 0.0);
-    float ambientIntensity = 0.3;
+	
     ambientIntensity *= float(modelViewMat);
-    vec3 ambient = ambientIntensity * pointLight.color;
-    ambient *= mat3(modelViewMat);
-    vec3 norm = normalize(norm_camera);
-    vec3 lightDirection = normalize(pointLight.center.xyz - pos_camera.xyz);
-    float diffCo = max(dot(norm, lightDirection), 0.0);
-    vec3 diffuse = diffCo * pointLight.color;
-    diffuse *= mat3(modelViewMat);
-    float specularIntensity = 0.5;
     specularIntensity *= float(modelViewMat);
-    vec3 viewDirection = normalize(viewPos - pos_camera.xyz);
-    viewDirection *= mat3(modelViewMat);
-    vec3 reflectedLightVec = reflect(-(lightDirection), norm);
-    //reflectedLightVec *= mat3(modelViewMat);
-    float specCo;
-    specCo *= float(modelViewMat);
-    specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    vec3 specular = specularIntensity * specCo * pointLight.color;
-    specular *= mat3(modelViewMat);
-    vColor = vec4((ambient + diffuse + specular) * color, 1.0);
-    */
+    pointLight.center *= modelViewMat;
     
-    //*
+    vPhongReflectance(vColor, color, ambientIntensity,
+					  specularIntensity, viewPos, norm_camera, 
+					  pos_camera.xyz, pointLight);
+	
+    //*/
+    
+    /*
     // OBJECT-SPACE PHONG REFLECTION
-    vec3 color = vec3(1.0, 0.0, 0.0);
-    float ambientIntensity = 0.3;
-    vec3 ambient = ambientIntensity * pointLight.color;
-    vec3 norm = normalize(norm_camera);
-    vec3 lightDirection = normalize(pointLight.center.xyz - pos_camera.xyz);
-    float diffCo = max(dot(norm, lightDirection), 0.0);
-    vec3 diffuse = diffCo * pointLight.color;
-    float specularIntensity = 0.5;
-    vec3 viewDirection = normalize(viewPos - pos_camera.xyz);
-    vec3 reflectedLightVec = reflect(-(lightDirection), norm);
-    float specCo = max(dot(viewDirection, reflectedLightVec), 0.0);
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    specCo *= specCo;
-    vec3 specular = specularIntensity * specCo * pointLight.color;
-    vColor = vec4((ambient + diffuse + specular) * color, 1.0);
     
-    /*/
+    vPhongReflectance(vColor, color, ambientIntensity,
+					  specularIntensity, viewPos, norm_camera, 
+					  pos_camera.xyz, pointLight);
+    
+    //*/
 	
 	//PER-FRAGMENT: pass things that FS needs to calculate final color
 	//vNormal = vec4(aNormal, 0.0);
@@ -181,23 +157,21 @@ void main()
 	//vTexcoord = aTexcoord;
 	vTexcoord = uv_atlas;
 	
-	/*
+	
 	// VIEW-SPACE PHONG REFLECTION
+	/*
 	vPointLightCenter = pointLight.center;
 	vPointLightCenter *= modelViewMat;
 	vPointLightColor = pointLight.color;
 	vPointLightColor *= mat3(modelViewMat);
 	vObjectColor = color;
-	//vObjectColor *= mat3(modelViewMat);
 	vAmbientIntensity = ambientIntensity;
 	vAmbientIntensity *= float(modelViewMat);
 	vObjectPos = pos_camera.xyz;
-	vObjectPos *= mat3(modelViewMat);
 	vViewPos = viewPos;
-	vViewPos *= mat3(modelViewMat);
 	vSpecularIntensity = specularIntensity;
 	vSpecularIntensity *= float(modelViewMat);
-	*/
+	//*/
 	
 	//OBJECT-SPACE PHONG REFLECTION
 	/*
@@ -208,7 +182,7 @@ void main()
 	vObjectPos = pos_camera.xyz;
 	vViewPos = viewPos;
 	vSpecularIntensity = specularIntensity;
-	*/
+	//*/
 	
 	
 	//gl_Position = uProjMat * modelViewMat * aTexcoord;
