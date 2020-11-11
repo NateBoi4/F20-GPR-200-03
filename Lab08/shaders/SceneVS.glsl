@@ -24,27 +24,10 @@ out vec4 vColor;
 
 //PER-FRAGMENT: send stuff to the FS to calculate final color
 out vec4 vNormal;
+out vec4 vTexcoord;
 
 void main()
 {
-	// REQUIRED: set this value:
-	// problem: gl_position is in "clip-space"
-	// problem: aPosition is in "object-space"
-	//gl_Position = aPosition;
-	
-	// position in world-space (wrong)
-	//vec4 pos_world = uModelMat * aPosition;
-	//gl_Position = pos_world;
-	
-	// position in camera-space (also wrong)
-	//vec4 pos_camera = uViewMat * uModelMat * aPosition;
-	//vec4 pos_camera = uViewMat * pos_world;
-	//gl_Position = pos_camera;
-	
-	// position in clip space (finally!)
-	//vec4 pos_clip = uProjMat * uViewMat * uModelMat * aPosition;
-	//vec4 pos_clip = uViewProjMat * pos_world;
-	
 	// POSITION PIPELINE
 	mat4 modelViewMat = uViewMat * uModelMat;
 	vec4 pos_camera = modelViewMat * aPosition;
@@ -68,5 +51,6 @@ void main()
 	//PER-FRAGMENT: pass things that FS needs to calculate final color
 	//vNormal = vec4(aNormal, 0.0);
 	vNormal = vec4(norm_camera, 0.0);
+	vTexcoord = aTexcoord;
 	
 }

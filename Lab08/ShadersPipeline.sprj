@@ -11,8 +11,8 @@
 			</inputlayout>
 			<rendertexture />
 			<items>
-				<item name="gCube" type="geometry">
-					<type>Cube</type>
+				<item name="gPlane" type="geometry">
+					<type>Plane</type>
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
@@ -37,15 +37,32 @@
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
 			<rendertexture />
-			<items />
+			<items>
+				<item name="FSQ" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
 			<itemvalues />
+			<variables>
+				<variable type="float4x4" name="uViewMat" system="View" />
+				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
+				<variable type="float4x4" name="uProjMat" system="Projection" />
+				<variable type="float4x4" name="uViewProjMat" system="ViewProjection" />
+			</variables>
 			<macros />
 		</pass>
 	</pipeline>
-	<objects />
+	<objects>
+		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="0" name="Scene" />
+		</object>
+	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Display" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Display" shader="vs" />
@@ -54,9 +71,9 @@
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
 		<entry type="camera" fp="false">
-			<distance>4</distance>
-			<pitch>28</pitch>
-			<yaw>317</yaw>
+			<distance>2</distance>
+			<pitch>0</pitch>
+			<yaw>358</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
