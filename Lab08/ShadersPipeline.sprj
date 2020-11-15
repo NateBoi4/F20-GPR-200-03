@@ -9,10 +9,10 @@
 				<item value="Normal" semantic="NORMAL" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="rtScene" />
 			<items>
-				<item name="gPlane" type="geometry">
-					<type>Plane</type>
+				<item name="gSphere" type="geometry">
+					<type>Sphere</type>
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
@@ -28,7 +28,20 @@
 			</variables>
 			<macros />
 		</pass>
-		<pass name="Display" type="shader" active="false">
+		<pass name="Bright" type="shader" active="true">
+			<shader type="vs" path="shaders\BrightVS.glsl" entry="main" />
+			<shader type="ps" path="shaders\BrightPS.glsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items />
+			<itemvalues />
+			<macros />
+		</pass>
+		<pass name="Display" type="shader" active="true">
 			<shader type="vs" path="shaders\DisplayVS.glsl" entry="main" />
 			<shader type="ps" path="shaders\DisplayPS.glsl" entry="main" />
 			<inputlayout>
@@ -52,28 +65,40 @@
 				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
 				<variable type="float4x4" name="uProjMat" system="Projection" />
 				<variable type="float4x4" name="uViewProjMat" system="ViewProjection" />
+				<variable type="float2" name="uResolution" system="ViewportSize" />
+				<variable type="int" name="uTex">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
 	</pipeline>
 	<objects>
+		<object type="rendertexture" name="rtScene" fsize="394,313" clear="true">
+			<bind slot="0" name="Display" />
+		</object>
 		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
-			<bind slot="0" name="Scene" />
+			<bind slot="1" name="Display" />
 		</object>
 	</objects>
 	<cameras />
 	<settings>
+		<entry type="property" name="Scene" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Display" shader="vs" />
 		<entry type="file" name="Display" shader="ps" />
+		<entry type="file" name="Bright" shader="vs" />
+		<entry type="file" name="Bright" shader="ps" />
 		<entry type="pinned" name="uViewMat" owner="Scene" />
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
 		<entry type="camera" fp="false">
-			<distance>2</distance>
-			<pitch>0</pitch>
-			<yaw>358</yaw>
+			<distance>4</distance>
+			<pitch>38</pitch>
+			<yaw>206</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

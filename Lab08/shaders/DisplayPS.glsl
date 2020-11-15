@@ -14,6 +14,10 @@ in vec4 vPosClip;
 
 //PER-FRAGMENT: recieving stuff used for final color
 in vec4 vNormal;
+in vec2 vTexcoord;
+
+uniform vec2 uResolution;
+uniform sampler2D uTex;
 
 void main()
 {
@@ -25,6 +29,10 @@ void main()
 	//rtFragColor = vec4(1.0);
 	//rtFragColor = vPosClip;
 	
+	vec2 uv = vTexcoord;
+	vec4 col = texture(uTex, uv);
+	
+	
 	// MANUAL PERSPECTIVE DIVIDE
 	vec4 posNDC = vPosClip / vPosClip.w;
 	//rtFragColor = posNDC;
@@ -32,9 +40,10 @@ void main()
 	
 	// SCREEN SPACE
 	vec4 posScreen = posNDC * 0.5 + 0.5;
-	rtFragColor = posScreen;
+	//rtFragColor = posScreen;
 	// [-1, +1] -> [0, 1]
 	
 	// test: remove blue to see RGY gradient
-	rtFragColor.b = 0.0;
+	//rtFragColor.b = 0.0;
+	rtFragColor = col;
 }

@@ -49,8 +49,8 @@ void main()
 	//vColor = vec4(aNormal * 0.5 + 0.5, 1.0);
 	
 	//PER-FRAGMENT: pass things that FS needs to calculate final color
-	//vNormal = vec4(aNormal, 0.0);
-	vNormal = vec4(norm_camera, 0.0);
-	vTexcoord = aTexcoord;
+	vNormal = vec4(aNormal, 0.0);
+	//vNormal = vec4(norm_camera, 0.0);
+	//vTexcoord = aTexcoord;
 	
 }

@@ -26,5 +26,5 @@ void main()
 	vec4 N = normalize(vNormal);
 	//PER-FRAGMENT: calulate final color here using inputs
 	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
-	rtFragColor = texture(uTexture, vTexcoord.xy);
+	rtFragColor = vNormal;
 }
