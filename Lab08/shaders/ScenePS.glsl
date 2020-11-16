@@ -7,7 +7,7 @@ precision highp float;
 
 layout (location = 0) out vec4 rtFragColor;
 
-uniform sampler2D uTexture;
+//uniform sampler2D uTexture;
 
 // VARYING
 // PER-VERTEX: recieve final color
@@ -26,5 +26,6 @@ void main()
 	vec4 N = normalize(vNormal);
 	//PER-FRAGMENT: calulate final color here using inputs
 	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
-	rtFragColor = vNormal;
+	//rtFragColor = vNormal;
+	rtFragColor = vec4(1.0);
 }

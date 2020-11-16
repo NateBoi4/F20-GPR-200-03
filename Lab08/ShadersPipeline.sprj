@@ -18,6 +18,30 @@
 					<depth>1</depth>
 					<topology>TriangleList</topology>
 				</item>
+				<item name="gSphereTwo" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<y>2</y>
+					<topology>TriangleList</topology>
+				</item>
+				<item name="gSphereThree" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<x>2</x>
+					<topology>TriangleList</topology>
+				</item>
+				<item name="gSphereFour" type="geometry">
+					<type>Sphere</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<z>2</z>
+					<topology>TriangleList</topology>
+				</item>
 			</items>
 			<itemvalues />
 			<variables>
@@ -36,12 +60,22 @@
 				<item value="Normal" semantic="NORMAL" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="rtBright" />
 			<items />
 			<itemvalues />
+			<variables>
+				<variable type="int" name="uTex">
+					<row>
+						<value>1</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
+				<variable type="float4x4" name="uViewMat" system="View" />
+				<variable type="float4x4" name="uProjMat" system="Projection" />
+			</variables>
 			<macros />
 		</pass>
-		<pass name="Blur" type="shader" active="true">
+		<pass name="Blur" type="shader" active="false">
 			<shader type="vs" path="shaders\BlurVS.glsl" entry="main" />
 			<shader type="ps" path="shaders\BlurPS.glsl" entry="main" />
 			<inputlayout>
@@ -49,9 +83,19 @@
 				<item value="Normal" semantic="NORMAL" />
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
-			<rendertexture />
+			<rendertexture name="rtBlur" />
 			<items />
 			<itemvalues />
+			<variables>
+				<variable type="int" name="uTex">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
+				<variable type="float4x4" name="uViewMat" system="View" />
+				<variable type="float4x4" name="uProjMat" system="Projection" />
+			</variables>
 			<macros />
 		</pass>
 		<pass name="Display" type="shader" active="true">
@@ -81,7 +125,7 @@
 				<variable type="float2" name="uResolution" system="ViewportSize" />
 				<variable type="int" name="uTex">
 					<row>
-						<value>0</value>
+						<value>3</value>
 					</row>
 				</variable>
 			</variables>
@@ -90,30 +134,32 @@
 	</pipeline>
 	<objects>
 		<object type="rendertexture" name="rtScene" fsize="394,313" clear="true">
-			<bind slot="0" name="Display" />
+			<bind slot="0" name="Bright" />
 		</object>
 		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
-			<bind slot="1" name="Display" />
+			<bind slot="0" name="Scene" />
 		</object>
+		<object type="rendertexture" name="rtBright" fsize="486,313" clear="true">
+			<bind slot="0" name="Display" />
+		</object>
+		<object type="rendertexture" name="rtBlur" fsize="486,313" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Display" item="pipe" />
+		<entry type="property" name="gSphere" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
 		<entry type="file" name="Bright" shader="ps" />
 		<entry type="file" name="Display" shader="vs" />
 		<entry type="file" name="Display" shader="ps" />
-		<entry type="file" name="Blur" shader="vs" />
-		<entry type="file" name="Blur" shader="ps" />
 		<entry type="pinned" name="uViewMat" owner="Scene" />
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
 		<entry type="camera" fp="false">
-			<distance>4</distance>
-			<pitch>38</pitch>
-			<yaw>206</yaw>
+			<distance>6</distance>
+			<pitch>-3</pitch>
+			<yaw>228</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
