@@ -41,6 +41,19 @@
 			<itemvalues />
 			<macros />
 		</pass>
+		<pass name="Blur" type="shader" active="true">
+			<shader type="vs" path="shaders\BlurVS.glsl" entry="main" />
+			<shader type="ps" path="shaders\BlurPS.glsl" entry="main" />
+			<inputlayout>
+				<item value="Position" semantic="POSITION" />
+				<item value="Normal" semantic="NORMAL" />
+				<item value="Texcoord" semantic="TEXCOORD0" />
+			</inputlayout>
+			<rendertexture />
+			<items />
+			<itemvalues />
+			<macros />
+		</pass>
 		<pass name="Display" type="shader" active="true">
 			<shader type="vs" path="shaders\DisplayVS.glsl" entry="main" />
 			<shader type="ps" path="shaders\DisplayPS.glsl" entry="main" />
@@ -85,13 +98,15 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Scene" item="pipe" />
+		<entry type="property" name="Display" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
-		<entry type="file" name="Display" shader="vs" />
-		<entry type="file" name="Display" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
 		<entry type="file" name="Bright" shader="ps" />
+		<entry type="file" name="Display" shader="vs" />
+		<entry type="file" name="Display" shader="ps" />
+		<entry type="file" name="Blur" shader="vs" />
+		<entry type="file" name="Blur" shader="ps" />
 		<entry type="pinned" name="uViewMat" owner="Scene" />
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
