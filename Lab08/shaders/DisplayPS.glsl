@@ -7,9 +7,6 @@ precision highp float;
 
 layout (location = 0) out vec4 rtFragColor;
 
-// VARYING
-// PER-VERTEX: recieve final color
-in vec4 vColor;
 in vec4 vPosClip;
 
 //PER-FRAGMENT: recieving stuff used for final color
@@ -23,7 +20,7 @@ uniform sampler2D uTexOrig;
 void main()
 {
 
-	//PER-VERTEX: input is just final color
+	//TESTING DISPLAY OUTPUT
 	//rtFragColor = vColor;
 	//vec4 N = normalize(vNormal);
 	//PER-FRAGMENT: calulate final color here using inputs
@@ -48,11 +45,9 @@ void main()
 	vec4 col = texture(uTex, posScreen.xy);
 	vec4 colOrig = texture(uTexOrig, posScreen.xy);
 	
-	// test: remove blue to see RGY gradient
-	//rtFragColor.b = 0.0;
 	//rtFragColor = col;
 	//rtFragColor = colOrig;
-	rtFragColor = col + colOrig;
-	//rtFragColor = mix(col, colOrig, col.a);
-	//rtFragColor = (1.0 - (1.0 - colOrig) * (1.0 - col));
+	rtFragColor = col + colOrig; //Additive method for blending
+	//rtFragColor = mix(col, colOrig, col.a); //Mixing method for blending
+	//rtFragColor = (1.0 - (1.0 - colOrig) * (1.0 - col)); //Screen method for blending
 }

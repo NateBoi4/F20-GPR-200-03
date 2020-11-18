@@ -21,13 +21,14 @@ vec4 createRow(in float a, in float b, in float c, in float y, in vec2 resInv, i
     return currentRow;
 }
 
+//Gaussian Blur method taken from Lab 06 to achieve bloom effect: https://www.shadertoy.com/view/3sycR1
 void main()
 {
 	//Inverse of texture resolution in the xy plane
-    vec2 uv = vTexcoord;
+    //vec2 uv = vTexcoord;
     vec2 resInv = 1.0 / uResolution;
     
-    /*
+    //*
     //Reciprocal of weight of sums of a 5x5 kernel.
     float fraction = 1.0 / 256.0;
     
@@ -52,8 +53,11 @@ void main()
     
     //Combine all resulting blurred rows and multiply against the reciprocal of the sum of weights
     rtFragColor = fraction * (firstRow + secondRow + thirdRow + fourthRow + fifthRow);
-    */
+    /*/
     
+    //TESTING DIFFERENT METHOD OF GAUSSIAN BLUR
+    //Method from: http://rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/
+    /*
     rtFragColor = texture(uTex, vec2(gl_FragCoord) / uResolution) * weight[0];
     for (int i=1; i<5; i++) {
         rtFragColor +=
@@ -63,4 +67,5 @@ void main()
             texture(uTex, (vec2(gl_FragCoord) - vec2(0.0, offset[i])) / uResolution)
                 * weight[i];
    }
+   //*/
 }

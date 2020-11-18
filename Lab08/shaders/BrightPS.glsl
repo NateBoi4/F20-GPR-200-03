@@ -6,13 +6,14 @@ uniform sampler2D uTex;
 
 in vec2 vTexcoord;
 
-
+//Bright Pass method achieved through luminance taken from Lab 06: https://www.shadertoy.com/view/3sycR1
 void main()
 {
 	// UV for input image
     vec2 uv = vTexcoord;
     vec4 col = texture(uTex, uv);
     
+    //TEST UV
     //rtFragColor = texture(uTex, uv);
     
     //Reference: https://en.wikipedia.org/wiki/Relative_luminance
@@ -28,5 +29,7 @@ void main()
     col.rgb *= luminance;
     
     rtFragColor = col;
+    
+    //TEST OUTPUT
     //rtFragColor = vec4(1.0);
 }

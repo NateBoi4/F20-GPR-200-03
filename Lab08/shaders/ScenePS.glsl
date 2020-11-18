@@ -7,16 +7,12 @@ precision highp float;
 
 layout (location = 0) out vec4 rtFragColor;
 
-//uniform sampler2D uTexture;
 uniform int uID;
 uniform vec3 uLightPos;
 uniform sampler2D uTex;
 
-// VARYING
-// PER-VERTEX: recieve final color
-in vec4 vColor;
 
-//PER-FRAGMENT: recieving stuff used for final color
+in vec4 vColor;
 in vec4 vNormal;
 in vec2 vTexcoord;
 in vec4 vPosition;
@@ -27,12 +23,14 @@ void main()
 	
 	const vec4 colors[4] = vec4[4](vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 0.5, 0.5, 1.0), vec4(1.0));
 	
-	//PER-VERTEX: input is just final color
+	//TESTING OUTPUT FOR SCENE
 	//rtFragColor = vColor;
 	vec4 N = normalize(vNormal);
 	//PER-FRAGMENT: calulate final color here using inputs
 	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
 	//rtFragColor = vNormal;
+	
+	//Use solid colors as final color.
 	//rtFragColor = colors[uID];
 	
 	//PER-FRAGMENT Lambertian Reflectance

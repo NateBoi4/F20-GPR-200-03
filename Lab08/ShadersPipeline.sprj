@@ -116,9 +116,6 @@
 						<value>1</value>
 					</row>
 				</variable>
-				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
-				<variable type="float4x4" name="uViewMat" system="View" />
-				<variable type="float4x4" name="uProjMat" system="Projection" />
 			</variables>
 			<macros />
 		</pass>
@@ -147,9 +144,6 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
-				<variable type="float4x4" name="uViewMat" system="View" />
-				<variable type="float4x4" name="uProjMat" system="Projection" />
 				<variable type="float2" name="uResolution" system="ViewportSize" />
 			</variables>
 			<macros />
@@ -210,7 +204,7 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="gSphereOne" item="pipe" />
+		<entry type="property" name="Display" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
@@ -219,15 +213,13 @@
 		<entry type="file" name="Blur" shader="ps" />
 		<entry type="file" name="Display" shader="vs" />
 		<entry type="file" name="Display" shader="ps" />
-		<entry type="pinned" name="uViewMat" owner="Scene" />
-		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
 		<entry type="pinned" name="uID" owner="Scene" />
 		<entry type="pinned" name="uLightPos" owner="Scene" />
 		<entry type="camera" fp="false">
 			<distance>9</distance>
-			<pitch>8</pitch>
-			<yaw>230</yaw>
+			<pitch>29</pitch>
+			<yaw>231</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
