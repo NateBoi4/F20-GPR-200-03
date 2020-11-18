@@ -53,6 +53,6 @@ void main()
 	//rtFragColor = col;
 	//rtFragColor = colOrig;
 	rtFragColor = col + colOrig;
-	//rtFragColor = mix(col, colOrig, colOrig.a);
+	//rtFragColor = mix(col, colOrig, col.a);
 	//rtFragColor = (1.0 - (1.0 - colOrig) * (1.0 - col));
 }

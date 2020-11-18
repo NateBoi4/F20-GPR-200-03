@@ -5,6 +5,10 @@ layout (location = 0) out vec4 rtFragColor;
 uniform vec2 uResolution;
 uniform sampler2D uTex;
 
+uniform float offset[5] = float[](0.0, 1.0, 2.0, 3.0, 4.0);
+uniform float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216,
+                                  0.0540540541, 0.0162162162);
+
 in vec2 vTexcoord;
 
 vec4 createRow(in float a, in float b, in float c, in float y, in vec2 resInv, in vec2 fragCoord) 
@@ -23,6 +27,7 @@ void main()
     vec2 uv = vTexcoord;
     vec2 resInv = 1.0 / uResolution;
     
+    /*
     //Reciprocal of weight of sums of a 5x5 kernel.
     float fraction = 1.0 / 256.0;
     
@@ -47,4 +52,15 @@ void main()
     
     //Combine all resulting blurred rows and multiply against the reciprocal of the sum of weights
     rtFragColor = fraction * (firstRow + secondRow + thirdRow + fourthRow + fifthRow);
+    */
+    
+    rtFragColor = texture(uTex, vec2(gl_FragCoord) / uResolution) * weight[0];
+    for (int i=1; i<5; i++) {
+        rtFragColor +=
+            texture(uTex, (vec2(gl_FragCoord) + vec2(0.0, offset[i])) / uResolution)
+                * weight[i];
+        rtFragColor +=
+            texture(uTex, (vec2(gl_FragCoord) - vec2(0.0, offset[i])) / uResolution)
+                * weight[i];
+   }
 }

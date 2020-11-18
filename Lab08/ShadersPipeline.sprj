@@ -11,7 +11,7 @@
 			</inputlayout>
 			<rendertexture name="rtScene" />
 			<items>
-				<item name="gSphere" type="geometry">
+				<item name="gSphereOne" type="geometry">
 					<type>Sphere</type>
 					<width>1</width>
 					<height>1</height>
@@ -45,7 +45,7 @@
 				</item>
 			</items>
 			<itemvalues>
-				<value variable="uID" for="gSphere">
+				<value variable="uID" for="gSphereOne">
 					<row>
 						<value>0</value>
 					</row>
@@ -76,6 +76,18 @@
 						<value>0</value>
 					</row>
 				</variable>
+				<variable type="float3" name="uLightPos">
+					<row>
+						<value>0</value>
+						<value>0</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="int" name="uTex">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
@@ -89,7 +101,7 @@
 			</inputlayout>
 			<rendertexture name="rtBright" />
 			<items>
-				<item name="gFSQ" type="geometry">
+				<item name="brightFSQ" type="geometry">
 					<type>ScreenQuadNDC</type>
 					<width>1</width>
 					<height>1</height>
@@ -198,7 +210,7 @@
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Blur" item="pipe" />
+		<entry type="property" name="gSphereOne" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
@@ -211,10 +223,11 @@
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
 		<entry type="pinned" name="uID" owner="Scene" />
+		<entry type="pinned" name="uLightPos" owner="Scene" />
 		<entry type="camera" fp="false">
-			<distance>8</distance>
-			<pitch>16</pitch>
-			<yaw>227</yaw>
+			<distance>9</distance>
+			<pitch>8</pitch>
+			<yaw>230</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />
