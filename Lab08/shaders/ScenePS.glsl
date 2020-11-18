@@ -8,6 +8,7 @@ precision highp float;
 layout (location = 0) out vec4 rtFragColor;
 
 //uniform sampler2D uTexture;
+uniform int uID;
 
 // VARYING
 // PER-VERTEX: recieve final color
@@ -21,11 +22,13 @@ void main()
 {
 	//rtFragColor = vec4(0.5, 0.0, 0.25, 1.0);
 	
+	const vec4 colors[4] = vec4[4](vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 0.5, 0.5, 1.0), vec4(1.0));
+	
 	//PER-VERTEX: input is just final color
 	//rtFragColor = vColor;
 	vec4 N = normalize(vNormal);
 	//PER-FRAGMENT: calulate final color here using inputs
 	//rtFragColor = vec4(N.xyz * 0.5 + 0.5, 1.0);
 	//rtFragColor = vNormal;
-	rtFragColor = vec4(1.0);
+	rtFragColor = colors[uID];
 }

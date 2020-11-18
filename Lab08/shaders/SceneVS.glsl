@@ -16,6 +16,7 @@ uniform mat4 uModelMat;
 uniform mat4 uViewMat;
 uniform mat4 uProjMat;
 uniform mat4 uViewProjMat;
+uniform int uID;
 
 // VARYING
 

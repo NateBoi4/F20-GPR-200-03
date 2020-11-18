@@ -28,15 +28,15 @@ out vec2 vTexcoord;
 void main()
 {
 	// POSITION PIPELINE
-	mat4 modelViewMat = uViewMat * uModelMat;
-	vec4 pos_camera = modelViewMat * aPosition;
-	vec4 pos_clip = uProjMat * pos_camera;
+	//mat4 modelViewMat = uViewMat * uModelMat;
+	//vec4 pos_camera = modelViewMat * aPosition;
+	//vec4 pos_clip = uProjMat * pos_camera;
 	gl_Position = aPosition;
 	//w = 1.0 because point if orthographic
 	//gl_Position = aPosition;
 	//w = 1.0 because point
 	
-	//vPosClip = gl_Position;
+	vPosClip = gl_Position;
 	
 	vTexcoord = aPosition.xy * 0.5 + 0.5;
 	

@@ -27,6 +27,6 @@ void main()
     col.rgb *= luminance;
     col.rgb *= luminance;
     
-    //rtFragColor = col;
-    rtFragColor = vec4(1.0);
+    rtFragColor = col;
+    //rtFragColor = vec4(1.0);
 }

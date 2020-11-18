@@ -18,6 +18,7 @@ in vec2 vTexcoord;
 
 uniform vec2 uResolution;
 uniform sampler2D uTex;
+uniform sampler2D uTexOrig;
 
 void main()
 {
@@ -29,8 +30,9 @@ void main()
 	//rtFragColor = vec4(1.0);
 	//rtFragColor = vPosClip;
 	
-	vec2 uv = vTexcoord;
-	vec4 col = texture(uTex, uv);
+	//vec2 uv = vTexcoord;
+	//vec4 col = texture(uTex, uv);
+	//vec4 colOrig = texture(uTexOrig, uv);
 	
 	
 	// MANUAL PERSPECTIVE DIVIDE
@@ -43,7 +45,14 @@ void main()
 	//rtFragColor = posScreen;
 	// [-1, +1] -> [0, 1]
 	
+	vec4 col = texture(uTex, posScreen.xy);
+	vec4 colOrig = texture(uTexOrig, posScreen.xy);
+	
 	// test: remove blue to see RGY gradient
 	//rtFragColor.b = 0.0;
-	rtFragColor = col;
+	//rtFragColor = col;
+	//rtFragColor = colOrig;
+	rtFragColor = col + colOrig;
+	//rtFragColor = mix(col, colOrig, colOrig.a);
+	//rtFragColor = (1.0 - (1.0 - colOrig) * (1.0 - col));
 }

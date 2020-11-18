@@ -16,6 +16,7 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
+					<x>-0.239928246</x>
 					<topology>TriangleList</topology>
 				</item>
 				<item name="gSphereTwo" type="geometry">
@@ -43,12 +44,38 @@
 					<topology>TriangleList</topology>
 				</item>
 			</items>
-			<itemvalues />
+			<itemvalues>
+				<value variable="uID" for="gSphere">
+					<row>
+						<value>0</value>
+					</row>
+				</value>
+				<value variable="uID" for="gSphereTwo">
+					<row>
+						<value>1</value>
+					</row>
+				</value>
+				<value variable="uID" for="gSphereThree">
+					<row>
+						<value>2</value>
+					</row>
+				</value>
+				<value variable="uID" for="gSphereFour">
+					<row>
+						<value>3</value>
+					</row>
+				</value>
+			</itemvalues>
 			<variables>
 				<variable type="float4x4" name="uViewMat" system="View" />
 				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
 				<variable type="float4x4" name="uProjMat" system="Projection" />
 				<variable type="float4x4" name="uViewProjMat" system="ViewProjection" />
+				<variable type="int" name="uID">
+					<row>
+						<value>0</value>
+					</row>
+				</variable>
 			</variables>
 			<macros />
 		</pass>
@@ -61,7 +88,15 @@
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
 			<rendertexture name="rtBright" />
-			<items />
+			<items>
+				<item name="gFSQ" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
 			<itemvalues />
 			<variables>
 				<variable type="int" name="uTex">
@@ -75,7 +110,7 @@
 			</variables>
 			<macros />
 		</pass>
-		<pass name="Blur" type="shader" active="false">
+		<pass name="Blur" type="shader" active="true">
 			<shader type="vs" path="shaders\BlurVS.glsl" entry="main" />
 			<shader type="ps" path="shaders\BlurPS.glsl" entry="main" />
 			<inputlayout>
@@ -84,7 +119,15 @@
 				<item value="Texcoord" semantic="TEXCOORD0" />
 			</inputlayout>
 			<rendertexture name="rtBlur" />
-			<items />
+			<items>
+				<item name="blurFSQ" type="geometry">
+					<type>ScreenQuadNDC</type>
+					<width>1</width>
+					<height>1</height>
+					<depth>1</depth>
+					<topology>TriangleList</topology>
+				</item>
+			</items>
 			<itemvalues />
 			<variables>
 				<variable type="int" name="uTex">
@@ -95,6 +138,7 @@
 				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
 				<variable type="float4x4" name="uViewMat" system="View" />
 				<variable type="float4x4" name="uProjMat" system="Projection" />
+				<variable type="float2" name="uResolution" system="ViewportSize" />
 			</variables>
 			<macros />
 		</pass>
@@ -125,7 +169,12 @@
 				<variable type="float2" name="uResolution" system="ViewportSize" />
 				<variable type="int" name="uTex">
 					<row>
-						<value>3</value>
+						<value>0</value>
+					</row>
+				</variable>
+				<variable type="int" name="uTexOrig">
+					<row>
+						<value>1</value>
 					</row>
 				</variable>
 			</variables>
@@ -135,31 +184,37 @@
 	<objects>
 		<object type="rendertexture" name="rtScene" fsize="394,313" clear="true">
 			<bind slot="0" name="Bright" />
+			<bind slot="1" name="Display" />
 		</object>
 		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
 			<bind slot="0" name="Scene" />
 		</object>
 		<object type="rendertexture" name="rtBright" fsize="486,313" clear="true">
+			<bind slot="0" name="Blur" />
+		</object>
+		<object type="rendertexture" name="rtBlur" fsize="486,313" clear="true">
 			<bind slot="0" name="Display" />
 		</object>
-		<object type="rendertexture" name="rtBlur" fsize="486,313" clear="true" />
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="gSphere" item="pipe" />
+		<entry type="property" name="Blur" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
 		<entry type="file" name="Bright" shader="ps" />
+		<entry type="file" name="Blur" shader="vs" />
+		<entry type="file" name="Blur" shader="ps" />
 		<entry type="file" name="Display" shader="vs" />
 		<entry type="file" name="Display" shader="ps" />
 		<entry type="pinned" name="uViewMat" owner="Scene" />
 		<entry type="pinned" name="uProjMat" owner="Scene" />
 		<entry type="pinned" name="uViewProjMat" owner="Scene" />
+		<entry type="pinned" name="uID" owner="Scene" />
 		<entry type="camera" fp="false">
-			<distance>6</distance>
-			<pitch>-3</pitch>
-			<yaw>228</yaw>
+			<distance>8</distance>
+			<pitch>16</pitch>
+			<yaw>227</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

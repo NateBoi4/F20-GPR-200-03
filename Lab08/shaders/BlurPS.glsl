@@ -2,6 +2,7 @@
 
 layout (location = 0) out vec4 rtFragColor;
 
+uniform vec2 uResolution;
 uniform sampler2D uTex;
 
 in vec2 vTexcoord;
@@ -20,7 +21,7 @@ void main()
 {
 	//Inverse of texture resolution in the xy plane
     vec2 uv = vTexcoord;
-    vec2 resInv = 1.0 / uv;
+    vec2 resInv = 1.0 / uResolution;
     
     //Reciprocal of weight of sums of a 5x5 kernel.
     float fraction = 1.0 / 256.0;
