@@ -1,5 +1,9 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// This file contains the Fragment Shader to the Blur Pass in my Pipeline which adds a Gaussian Blur effect to my output.
+// This shader performs the calculations for a 5x5 Kernel being applied to each pixel to generate the blur effect according to the weights set.
+
 layout (location = 0) out vec4 rtFragColor;
 
 uniform vec2 uResolution;
@@ -9,8 +13,10 @@ uniform float offset[5] = float[](0.0, 1.0, 2.0, 3.0, 4.0);
 uniform float weight[5] = float[](0.2270270270, 0.1945945946, 0.1216216216,
                                   0.0540540541, 0.0162162162);
 
-in vec2 vTexcoord;
-
+/*
+This is a function used to create rows of Gaussian Kernal that will all be summed up and multiplied together
+by the fractional reciprocal to achieve the blur effect.
+*/
 vec4 createRow(in float a, in float b, in float c, in float y, in vec2 resInv, in vec2 fragCoord) 
 {
     vec4 currentRow = (a * texture(uTex, (fragCoord + vec2(2.0, y)) * resInv) 
@@ -22,10 +28,10 @@ vec4 createRow(in float a, in float b, in float c, in float y, in vec2 resInv, i
 }
 
 //Gaussian Blur method taken from Lab 06 to achieve bloom effect: https://www.shadertoy.com/view/3sycR1
+//Multipass pipeline fragment shader that utilizes texture coordinate for NDC
 void main()
 {
 	//Inverse of texture resolution in the xy plane
-    //vec2 uv = vTexcoord;
     vec2 resInv = 1.0 / uResolution;
     
     //*

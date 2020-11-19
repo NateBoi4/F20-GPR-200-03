@@ -1,5 +1,9 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// This file contains the Fragment Shader of the Bright Pass in my Pipeline which adds luminace to my output.
+// This shader performs the calculations for the luminace effect and applies the result to the sampled texture from the previous pass.
+
 layout (location = 0) out vec4 rtFragColor;
 
 uniform sampler2D uTex;
@@ -7,6 +11,7 @@ uniform sampler2D uTex;
 in vec2 vTexcoord;
 
 //Bright Pass method achieved through luminance taken from Lab 06: https://www.shadertoy.com/view/3sycR1
+//Multipass pipeline fragment shader that utilizes texture coordinate for NDC
 void main()
 {
 	// UV for input image

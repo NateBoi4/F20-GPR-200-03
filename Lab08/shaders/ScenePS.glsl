@@ -1,5 +1,8 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// This file contains the Fragment Shader for the Scene Pass in my Pipeline for drawing my Geometry
+// This shader is responsible for outputting the results of a Per-Vertex coloring as well as Per-Fragment coloring, reflectance, and texturing
 
 #ifdef GL_ES
 precision highp float;
@@ -9,7 +12,10 @@ layout (location = 0) out vec4 rtFragColor;
 
 uniform int uID;
 uniform vec3 uLightPos;
-uniform sampler2D uTex;
+uniform sampler2D uTexSun;
+uniform sampler2D uTexOptic;
+uniform sampler2D uTexLightning;
+uniform sampler2D uTexIce;
 
 
 in vec4 vColor;
@@ -21,6 +27,7 @@ void main()
 {
 	//rtFragColor = vec4(0.5, 0.0, 0.25, 1.0);
 	
+	//Array of solid colors
 	const vec4 colors[4] = vec4[4](vec4(1.0, 0.0, 0.0, 1.0), vec4(0.0, 1.0, 0.0, 1.0), vec4(0.0, 0.5, 0.5, 1.0), vec4(1.0));
 	
 	//TESTING OUTPUT FOR SCENE
@@ -47,5 +54,8 @@ void main()
 	//Use a texture as the final color
 	vec2 uv = vTexcoord;
 	
-	//rtFragColor = texture(uTex, uv);
+	//Array of textures
+	const vec4 textures[4] = vec4[4](texture(uTexSun, uv), texture(uTexOptic, uv), texture(uTexLightning, uv), texture(uTexIce, uv));
+	
+	//rtFragColor = textures[uID];
 }

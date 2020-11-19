@@ -16,7 +16,6 @@
 					<width>1</width>
 					<height>1</height>
 					<depth>1</depth>
-					<x>-0.239928246</x>
 					<topology>TriangleList</topology>
 				</item>
 				<item name="gSphereTwo" type="geometry">
@@ -83,9 +82,24 @@
 						<value>0</value>
 					</row>
 				</variable>
-				<variable type="int" name="uTex">
+				<variable type="int" name="uTexOptic">
+					<row>
+						<value>1</value>
+					</row>
+				</variable>
+				<variable type="int" name="uTexSun">
 					<row>
 						<value>0</value>
+					</row>
+				</variable>
+				<variable type="int" name="uTexLightning">
+					<row>
+						<value>2</value>
+					</row>
+				</variable>
+				<variable type="int" name="uTexIce">
+					<row>
+						<value>3</value>
 					</row>
 				</variable>
 			</variables>
@@ -172,7 +186,6 @@
 				<variable type="float4x4" name="uModelMat" system="GeometryTransform" />
 				<variable type="float4x4" name="uProjMat" system="Projection" />
 				<variable type="float4x4" name="uViewProjMat" system="ViewProjection" />
-				<variable type="float2" name="uResolution" system="ViewportSize" />
 				<variable type="int" name="uTex">
 					<row>
 						<value>0</value>
@@ -192,19 +205,28 @@
 			<bind slot="0" name="Bright" />
 			<bind slot="1" name="Display" />
 		</object>
-		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
-			<bind slot="0" name="Scene" />
-		</object>
 		<object type="rendertexture" name="rtBright" fsize="486,313" clear="true">
 			<bind slot="0" name="Blur" />
 		</object>
 		<object type="rendertexture" name="rtBlur" fsize="486,313" clear="true">
 			<bind slot="0" name="Display" />
 		</object>
+		<object type="texture" path="..\..\..\Pictures\2k_sun.jpg" vflip="false" min_filter="Linear_MipmapNearest" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="0" name="Scene" />
+		</object>
+		<object type="texture" path="..\..\..\Pictures\optical illusion.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="1" name="Scene" />
+		</object>
+		<object type="texture" path="..\..\..\Pictures\lightning.png" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="2" name="Scene" />
+		</object>
+		<object type="texture" path="..\..\..\Pictures\ice.jpg" vflip="false" min_filter="Linear" mag_filter="Nearest" wrap_s="Repeat" wrap_t="Repeat">
+			<bind slot="3" name="Scene" />
+		</object>
 	</objects>
 	<cameras />
 	<settings>
-		<entry type="property" name="Display" item="pipe" />
+		<entry type="property" name="FSQ" item="pipe" />
 		<entry type="file" name="Scene" shader="vs" />
 		<entry type="file" name="Scene" shader="ps" />
 		<entry type="file" name="Bright" shader="vs" />
@@ -218,8 +240,8 @@
 		<entry type="pinned" name="uLightPos" owner="Scene" />
 		<entry type="camera" fp="false">
 			<distance>9</distance>
-			<pitch>29</pitch>
-			<yaw>231</yaw>
+			<pitch>6</pitch>
+			<yaw>203</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

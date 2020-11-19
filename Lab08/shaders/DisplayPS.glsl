@@ -1,5 +1,9 @@
 #version 450
 
+// Code by Nathan Boisvert 2020
+// This file contains the Fragment Shader for the Display Pass in my Pipeline which displays the full screen image.
+// This shader calculates the screen-space UV by manually performing the Perspective divide and converting NDC space to screen space
+// Then this shader takes the original image from Scene Pass and blends it with the output of the Blur Pass to generate the bloom effect.
 
 #ifdef GL_ES
 precision highp float;
@@ -13,7 +17,6 @@ in vec4 vPosClip;
 in vec4 vNormal;
 in vec2 vTexcoord;
 
-uniform vec2 uResolution;
 uniform sampler2D uTex;
 uniform sampler2D uTexOrig;
 
@@ -48,6 +51,6 @@ void main()
 	//rtFragColor = col;
 	//rtFragColor = colOrig;
 	rtFragColor = col + colOrig; //Additive method for blending
-	//rtFragColor = mix(col, colOrig, col.a); //Mixing method for blending
+	//rtFragColor = mix(col, colOrig, colOrig.a); //Mixing method for blending
 	//rtFragColor = (1.0 - (1.0 - colOrig) * (1.0 - col)); //Screen method for blending
 }
