@@ -240,8 +240,8 @@
 		<entry type="pinned" name="uLightPos" owner="Scene" />
 		<entry type="camera" fp="false">
 			<distance>9</distance>
-			<pitch>6</pitch>
-			<yaw>203</yaw>
+			<pitch>20</pitch>
+			<yaw>228</yaw>
 			<roll>360</roll>
 		</entry>
 		<entry type="clearcolor" r="0" g="0" b="0" a="0" />

@@ -49,7 +49,7 @@ void main()
 	float diffuse = max(0.0, dot(vNormal.xyz, lightVector));
 	float attenuation = 1.0 / ((1.0 + dist * intensityInv) * (1.0 + dist * intensityInv));
 	diffuse *= attenuation;
-	rtFragColor = vColor * diffuse;
+	//rtFragColor = vColor * diffuse;
 	
 	//Use a texture as the final color
 	vec2 uv = vTexcoord;
@@ -57,5 +57,5 @@ void main()
 	//Array of textures
 	const vec4 textures[4] = vec4[4](texture(uTexSun, uv), texture(uTexOptic, uv), texture(uTexLightning, uv), texture(uTexIce, uv));
 	
-	//rtFragColor = textures[uID];
+	rtFragColor = textures[uID];
 }

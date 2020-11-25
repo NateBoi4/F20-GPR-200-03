@@ -19,12 +19,12 @@ out vec4 vNormal;
 void main()
 {
 	// TESTING DISPLAY
-	mat4 modelViewMat = uViewMat * uModelMat;
-	vec4 pos_camera = modelViewMat * aPosition;
-	vec4 pos_clip = uProjMat * pos_camera;
-	gl_Position = pos_clip;
-	//w = 1.0 because point if orthographic
+	//mat4 modelViewMat = uViewMat * uModelMat;
+	//vec4 pos_camera = modelViewMat * aPosition;
+	//vec4 pos_clip = uProjMat * pos_camera;
 	gl_Position = aPosition;
+	//w = 1.0 because point if orthographic
+	//gl_Position = aPosition;
 	//w = 1.0 because point
 	
 	vPosClip = gl_Position;
