@@ -32,7 +32,7 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     if (iMouse.z >= 0.0) // if mouse down
     {
         vec2 newmouse = iMouse.xy * invReso; // take in new mouse variables
-        vec2 newclick = iMouse.zw * invReso;
+        vec2 newclick = abs(iMouse.zw) * invReso;
         
         // get centralized distance of mouse to clicked coord
         vec2 mousefromclick = (newmouse - 0.5) - (newclick - 0.5);
